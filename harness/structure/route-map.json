@@ -1,0 +1,6 @@
+{
+  "_comment": "Maps app-structure.json screen ids (which mirror the Mermaid node ids 1:1) to real application page routes. Populate this once the mini app pages exist: one entry per screen, e.g. \"Home\": \"pages/home/index\". Keys starting with _ are ignored by the structure judge. While empty, the judge reports every screen as 'not yet mapped' (P2, non-blocking).",
+  "_example": {
+    "Home": "pages/home/index"
+  }
+}

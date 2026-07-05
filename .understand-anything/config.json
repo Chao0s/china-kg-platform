@@ -1,0 +1,4 @@
+{
+  "outputLanguage": "zh",
+  "note": "Default output language for /understand-anything:understand is Simplified Chinese (zh), since most teammates read 中文. English is only for the maintainer + LLM processing. Tracked in git so every clone inherits this default."
+}

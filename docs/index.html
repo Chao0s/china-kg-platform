@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>化龙镇中心幼儿园电子资源平台 · Hualong Kindergarten Electronic Resource Platform</title>
+  <meta name="description" content="化龙镇中心幼儿园电子资源平台——微信小程序 + PC 后台。本仓库是其规格、设计系统与质量门禁的基础。Spec, design system, and quality harness for a WeChat Mini Program plus PC backend.">
+  <meta name="color-scheme" content="light">
+
+  <!-- Self-contained except for Google Fonts (Nunito display + Noto Sans SC). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="assets/styles.css">
+
+  <!--
+    Inline token mirror. The full design system lives in assets/styles.css; this
+    small :root block restates the core tokens so the page is coherent even
+    before the stylesheet loads, and applies a no-flash background via var().
+  -->
+  <style>
+    :root {
+      --color-surface: #FCFAF6; /* warm off-white page background */
+      --color-ink: #2B2A28;     /* primary text */
+      --space-3: 24px;          /* 8pt grid step */
+      --fs-body: 16px;          /* body type tier */
+    }
+    html { background: var(--color-surface); }
+    body { color: var(--color-ink); }
+    .skip-link:focus { padding: var(--space-3); }
+    noscript p { font-size: var(--fs-body); }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容 / Skip to main content</a>
+
+  <!-- ============================= Header ============================= -->
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="#top" aria-label="化龙镇中心幼儿园电子资源平台 首页 / Home">
+        <!-- Simple non-figurative mark: a sheltering roof over a book/leaf. -->
+        <svg class="mark" viewBox="0 0 32 32" role="img" aria-label="平台标识 / Platform mark" focusable="false">
+          <path d="M16 3 4 12v2h24v-2L16 3z" fill="#E8924A"></path>
+          <rect x="7" y="16" width="18" height="11" rx="3" fill="#3E8E84"></rect>
+          <path d="M16 18v8M11 21h10" stroke="#FCFAF6" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+        <span class="brand-text">
+          <span class="brand-zh">化龙镇中心幼儿园电子资源平台</span>
+          <span class="brand-en">Hualong Kindergarten · Electronic Resource Platform</span>
+        </span>
+      </a>
+
+      <nav class="primary-nav" aria-label="主导航 / Primary navigation">
+        <ul>
+          <li><a href="#modules">模块 Modules</a></li>
+          <li><a href="#documents">文档 Docs</a></li>
+          <li><a href="#roles">角色 Roles</a></li>
+          <li><a href="#compliance">合规 Compliance</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============================= Main ============================= -->
+  <main id="main">
+    <span id="top"></span>
+
+    <!-- ----------------------------- Hero ----------------------------- -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container">
+        <p class="eyebrow">微信小程序 + PC 后台 · WeChat Mini Program + PC backend</p>
+        <h1 id="hero-title">
+          <span class="zh">化龙镇中心幼儿园电子资源平台</span>
+          <span class="en">Hualong Kindergarten Electronic Resource Platform</span>
+        </h1>
+        <p class="lede">
+          一个为园所管理者、教师与家长服务的电子资源平台，统一管理园所资源、教研培训、党建与家园社共育。
+          本仓库不是成品应用，而是它的<strong>规格说明、设计系统与质量门禁</strong>——为后续开发打下可验证的基础。
+          <br>
+          An electronic resource platform for kindergarten managers, teachers, and parents. This repository is not the
+          shipped app; it holds the platform&rsquo;s <strong>specification, design system, and quality harness</strong> —
+          a verifiable foundation the product is built on.
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#documents">阅读文档 · Read the docs</a>
+          <a class="btn btn-secondary" href="#modules">了解模块 · Explore modules</a>
+        </div>
+
+        <div class="meta-row" aria-label="平台概览 / Platform at a glance">
+          <span class="chip">微信小程序 · Mini Program</span>
+          <span class="chip">PC 后台 · PC backend</span>
+          <span class="chip">三端角色 · Three client roles</span>
+          <span class="chip">移动优先 · Mobile-first</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- --------------------------- Modules --------------------------- -->
+    <section class="section" id="modules" aria-labelledby="modules-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">平台模块</p>
+          <h2 id="modules-title"><span class="zh">模块</span><span class="en">Modules</span></h2>
+          <p>平台由八个核心模块组成；家长端只呈现家园社共育相关内容，不展示教师端模块。
+            Eight core modules; the parent client surfaces only home-school-community co-education content.</p>
+        </div>
+
+        <ul class="grid" role="list">
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 11 12 3l9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path></svg>
+            </span>
+            <h3>首页 <span class="muted">Home</span></h3>
+            <p class="zh">各端入口页，聚合待办事项、资源中心通知、常用入口与推荐课程案例；按端口显示不同内容。</p>
+            <p class="en">Per-role landing page: to-do items, resource-center notices, quick entries, recommended cases.</p>
+          </li>
+
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 3v18"></path><path d="M5 7h14"></path><circle cx="12" cy="5" r="2"></circle></svg>
+            </span>
+            <h3>党建管理 <span class="muted">Party-building</span></h3>
+            <p class="zh">党建学习、党建活动、品牌建设三类资料的呈现；以查看为主，上传建议放 PC 后台。</p>
+            <p class="en">Party-building study, activities, and brand-building; view-first, with uploads via the PC backend.</p>
+          </li>
+
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M4 9h16M9 5v14"></path></svg>
+            </span>
+            <h3>综合协调 <span class="muted">Administrative coordination</span></h3>
+            <p class="zh">行政统筹、后勤保障、人事管理三类文件资料；手机端查看为主，PC 端上传为主。</p>
+            <p class="en">Administrative planning, logistics, and HR documents; mobile is view-first, PC is upload-first.</p>
+          </li>
+
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 6h16"></path><path d="M4 12h10"></path><path d="M4 18h7"></path><circle cx="18" cy="16" r="3"></circle></svg>
+            </span>
+            <h3>教研培训 <span class="muted">Teaching-research and training</span></h3>
+            <p class="zh">课程建设、课程库+资源库、教研研修；1.0 重点为课程资源、教研资料与评价五维图。</p>
+            <p class="en">Curriculum development, the libraries, and teaching-research study; v1.0 focuses on course resources.</p>
+          </li>
+
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M5 4h11l3 3v13H5z"></path><path d="M9 9h6M9 13h6M9 17h4"></path></svg>
+            </span>
+            <h3>资源库 + 案例库 <span class="muted">Resource &amp; Case libraries</span></h3>
+            <p class="zh">资源按“衣/食/住/行/艺”分类；案例库（又称课程库）按年级、五大领域、活动形式与资源标签筛选。</p>
+            <p class="en">Resources by clothing/food/housing/travel/arts; the case library filtered by grade, domains, form, tag.</p>
+          </li>
+
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="8" cy="9" r="3"></circle><circle cx="17" cy="11" r="2.5"></circle><path d="M3 19c0-3 2.5-5 5-5s5 2 5 5"></path><path d="M14 19c0-2 1.5-3.5 3-3.5s3 1.5 3 3.5"></path></svg>
+            </span>
+            <h3>家园社共育 <span class="muted">Home-school-community co-education</span></h3>
+            <p class="zh">在园时光、亲子任务（含社区教育）、成长档案、成长册四大块。</p>
+            <p class="en">Garden moments, parent-child tasks (incl. community education), growth records, and growth books.</p>
+          </li>
+
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="6" y="3" width="12" height="18" rx="3"></rect><path d="M10 18h4"></path></svg>
+            </span>
+            <h3>家长端 <span class="muted">Parent client</span></h3>
+            <p class="zh">家长使用的端口，只保留家园社共育相关内容；不展示党建、综合协调、教研培训等教师端模块。</p>
+            <p class="en">The parent interface; surfaces co-education content only — never teacher-side modules.</p>
+          </li>
+
+          <li class="card module" role="listitem">
+            <span class="badge" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="5" width="18" height="12" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
+            </span>
+            <h3>PC 后台 <span class="muted">PC backend</span></h3>
+            <p class="zh">桌面端管理后台，承担文件类资料上传与批量管理；手机端用于高频轻量操作。</p>
+            <p class="en">Desktop backend for file-heavy uploads and bulk management; mobile handles lightweight actions.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- -------------------------- Documents -------------------------- -->
+    <section class="section" id="documents" aria-labelledby="documents-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">仓库文档</p>
+          <h2 id="documents-title"><span class="zh">文档</span><span class="en">Documents</span></h2>
+          <p>规格、设计系统与调研皆为双语维护，由质量门禁保证术语与风格一致。
+            Spec, design system, and research are maintained bilingually and guarded by the quality harness.</p>
+        </div>
+
+        <div class="grid cols-2" role="list">
+          <a class="card doc-card" role="listitem" href="PRD.md">
+            <span class="kicker">PRD · English</span>
+            <h3>产品需求文档 <span class="muted">Product Requirements</span></h3>
+            <p class="muted">范围、模块、角色权限与里程碑的完整规格说明。The full scope, modules, role permissions, and milestones.</p>
+            <span class="arrow" aria-hidden="true">阅读 Read &rarr;</span>
+          </a>
+
+          <a class="card doc-card" role="listitem" href="PRD.zh-CN.md">
+            <span class="kicker">PRD · 简体中文</span>
+            <h3>产品需求文档（中文） <span class="muted">PRD in Chinese</span></h3>
+            <p class="muted">PRD 的简体中文版本，与英文版逐节对应。The Simplified-Chinese PRD, section-aligned with the English.</p>
+            <span class="arrow" aria-hidden="true">阅读 Read &rarr;</span>
+          </a>
+
+          <a class="card doc-card" role="listitem" href="DESIGN.md">
+            <span class="kicker">Design system</span>
+            <h3>设计系统 <span class="muted">DESIGN.md</span></h3>
+            <p class="muted">配色、字体、间距与组件——本页所用设计令牌的来源。Color, type, spacing, and components — the source of this page&rsquo;s tokens.</p>
+            <span class="arrow" aria-hidden="true">阅读 Read &rarr;</span>
+          </a>
+
+          <a class="card doc-card" role="listitem" href="research/wechat-miniprogram.md">
+            <span class="kicker">Research</span>
+            <h3>微信小程序调研 <span class="muted">WeChat research</span></h3>
+            <p class="muted">云开发、订阅消息、内容安全与备案的平台调研。CloudBase, subscribe messages, content moderation, and filing.</p>
+            <span class="arrow" aria-hidden="true">阅读 Read &rarr;</span>
+          </a>
+
+          <a class="card doc-card" role="listitem" href="glossary.json">
+            <span class="kicker">Glossary</span>
+            <h3>术语表 <span class="muted">glossary.json</span></h3>
+            <p class="muted">中英术语的唯一真源，由门禁强制执行。The single source of truth for bilingual terms, enforced by the gate.</p>
+            <span class="arrow" aria-hidden="true">查看 View &rarr;</span>
+          </a>
+
+          <a class="card doc-card" role="listitem" href="../README.md">
+            <span class="kicker">Repository</span>
+            <h3>仓库说明 <span class="muted">README</span></h3>
+            <p class="muted">仓库结构、本地门禁运行方式与贡献指南。Repo structure, how to run the gate locally, and contribution notes.</p>
+            <span class="arrow" aria-hidden="true">阅读 Read &rarr;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------------- Roles ---------------------------- -->
+    <section class="section" id="roles" aria-labelledby="roles-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">三端角色</p>
+          <h2 id="roles-title"><span class="zh">角色</span><span class="en">Roles</span></h2>
+          <p>同一平台依角色呈现不同内容与权限。One platform; content and permissions differ by role.</p>
+        </div>
+
+        <ul class="grid" role="list">
+          <li class="card role" role="listitem">
+            <span class="role-tag">管理端 · Admin client</span>
+            <h3>园所管理者 <span class="muted">Manager</span></h3>
+            <p class="zh">负责审核、发布共建任务、内容与用户管理；审核通过进入资源库/案例库，驳回须填写原因退回。</p>
+            <p class="en">Audits, publishes co-construction tasks, manages content and users across the three clients.</p>
+          </li>
+
+          <li class="card role" role="listitem">
+            <span class="role-tag">教师端 · Teacher client</span>
+            <h3>教师 <span class="muted">Teacher</span></h3>
+            <p class="zh">上传资源与案例、完成任务、发布在园时光与评价，并生成成长档案与成长册。</p>
+            <p class="en">Uploads resources/cases, completes tasks, publishes garden moments, and builds growth records.</p>
+          </li>
+
+          <li class="card role" role="listitem">
+            <span class="role-tag">家长端 · Parent client</span>
+            <h3>家长 <span class="muted">Parent</span></h3>
+            <p class="zh">查看在园时光、完成亲子任务、阅读评价与成长册；仅可见家园社共育相关内容。</p>
+            <p class="en">Views garden moments, completes parent-child tasks, reads evaluations — co-education content only.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ------------------------- Compliance ------------------------- -->
+    <section class="section" id="compliance" aria-labelledby="compliance-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">不可妥协</p>
+          <h2 id="compliance-title"><span class="zh">合规</span><span class="en">Compliance</span></h2>
+          <p>面向幼儿与家长的平台，合规是上线前提，非可选项。For a platform serving children and parents, compliance is a precondition for launch — not optional.</p>
+        </div>
+
+        <div class="callout" role="note" aria-label="合规要求 / Compliance requirements">
+          <span class="callout-label">强制要求 · MANDATORY</span>
+          <ul>
+            <li>
+              <strong>内容安全 · Content moderation.</strong>
+              所有用户生成内容（文本、图片、视频、音频、昵称头像）须经
+              <code>security.msgSecCheck</code> / <code>security.mediaCheckAsync</code> 校验，未实现即审核不通过。
+              Every UGC item must pass WeChat content security checks; omitting it fails platform review.
+            </li>
+            <li>
+              <strong>小程序备案 · ICP filing.</strong>
+              自 2023-09-01 起强制：上线前完成工信部备案（含 12381 短信核验）。
+              Mandatory since 2023-09-01: complete MIIT filing (with 12381 SMS verification) before go-live.
+            </li>
+            <li>
+              <strong>未成年人数据 · Minors&rsquo; data.</strong>
+              幼儿照片等敏感信息须监护人明示同意、隐私政策弹窗、数据最小化与严格访问控制（依据 PIPL 与未成年人网络保护条例）。
+              Children&rsquo;s sensitive data requires explicit guardian consent, a privacy popup, data minimization, and strict access control.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================= Footer ============================= -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h2>关于本仓库 · About</h2>
+          <p class="muted">化龙镇中心幼儿园电子资源平台的规格、设计系统与质量门禁。Spec, design system, and quality harness for the platform.</p>
+        </div>
+        <nav aria-label="文档 / Documents">
+          <h2>文档 · Docs</h2>
+          <ul>
+            <li><a href="PRD.md">PRD (EN)</a></li>
+            <li><a href="PRD.zh-CN.md">PRD（中文）</a></li>
+            <li><a href="DESIGN.md">DESIGN</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="参考 / Reference">
+          <h2>参考 · Reference</h2>
+          <ul>
+            <li><a href="research/wechat-miniprogram.md">WeChat research</a></li>
+            <li><a href="glossary.json">Glossary</a></li>
+            <li><a href="../README.md">README</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="平台 / Platform">
+          <h2>平台 · Platform</h2>
+          <ul>
+            <li><a href="#modules">模块 Modules</a></li>
+            <li><a href="#roles">角色 Roles</a></li>
+            <li><a href="#compliance">合规 Compliance</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <p class="fineprint">
+        化龙镇中心幼儿园电子资源平台 · Hualong Kindergarten Electronic Resource Platform.
+        微信小程序 + PC 后台 · WeChat Mini Program + PC backend.
+        本页为静态文档站，内容与 docs/ 双语规格一致。This static site mirrors the bilingual specification in docs/.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

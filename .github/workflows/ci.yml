@@ -1,0 +1,45 @@
+# CI — China KG Platform
+# Runs the master quality gate (harness/gate.mjs): glossary check, typewriter
+# lint, design + wording judges, and tests. A green run here is the required
+# status check before a commit/PR is approved.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: Quality gate
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Get the source.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Node 20 — runs the harness, glossary check, typewriter lint, tests.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # 3. Python 3.12 — runs the design and wording judges.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 4. Install dependencies. Prefer a reproducible `npm ci`; fall back to
+      #    `npm install` when there is no lockfile yet.
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      # 5. The master gate — glossary + typewriter + judges + tests.
+      #    Exits non-zero (failing the job) if any check fails.
+      - name: Run quality gate
+        run: node harness/gate.mjs

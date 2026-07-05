@@ -1,0 +1,2 @@
+guardian_external_id,name,phone,relation,child_external_id
+G-EXAMPLE-001,示例家长 (Example Guardian),13800000000,mother,C-EXAMPLE-001

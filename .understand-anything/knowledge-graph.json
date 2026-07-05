@@ -1,0 +1,2871 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "china-kg-platform",
+    "languages": [
+      "css",
+      "html",
+      "javascript",
+      "json",
+      "markdown",
+      "python",
+      "yaml"
+    ],
+    "frameworks": [
+      "GitHub Actions"
+    ],
+    "description": "化龙镇中心幼儿园电子资源平台（Hualong Kindergarten Electronic Resource Platform）——一所公办幼儿园的微信小程序加PC后台。本仓库是规约、设计系统、双语术语契约以及自动化质量保障体系，用于管控后续加入的应用代码；目前尚无任何应用源代码。",
+    "analyzedAt": "2026-06-18T00:00:00Z",
+    "gitCommitHash": "3495f10d36387be6e1d7783af2b1e9b85413028f"
+  },
+  "nodes": [
+    {
+      "id": "file:tests/e2e/docs-site.e2e.mjs",
+      "type": "file",
+      "name": "docs-site.e2e.mjs",
+      "filePath": "tests/e2e/docs-site.e2e.mjs",
+      "summary": "可在CI中运行的静态端到端测试，无需浏览器即可校验docs/index.html是否包含必需的lang/title/viewport属性、渲染关键资源引用以及页面内的悬空锚点。作为更重型的chrome-devtools浏览器测试手册的廉价替代。",
+      "tags": [
+        "test",
+        "e2e",
+        "validation",
+        "docs-site",
+        "static-analysis"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "纯node:test加node:fs，配合正则提取链接；当docs/index.html尚未构建时会干净地跳过。"
+    },
+    {
+      "id": "file:tests/index.mjs",
+      "type": "file",
+      "name": "index.mjs",
+      "filePath": "tests/index.mjs",
+      "summary": "聚合入口，导入每一个单元、集成和e2e测试模块，使所有套件能在Node>=23（不支持裸目录导入）下通过单次`node --test tests/`运行统一注册。",
+      "tags": [
+        "test",
+        "entry-point",
+        "barrel",
+        "aggregator"
+      ],
+      "complexity": "simple",
+      "languageNotes": "通过从包主入口重新导入每个测试模块，规避ERR_UNSUPPORTED_DIR_IMPORT问题。"
+    },
+    {
+      "id": "file:tests/integration/harness-line.test.mjs",
+      "type": "file",
+      "name": "harness-line.test.mjs",
+      "filePath": "tests/integration/harness-line.test.mjs",
+      "summary": "集成测试，以黑盒方式spawn LINE级别的保障工具（术语检查器、typewriter、parity、gate、三个Python判官，以及编辑前/后的hook），端到端断言其退出码、JSON输出和自动修复行为。",
+      "tags": [
+        "test",
+        "integration",
+        "harness",
+        "validation",
+        "cli"
+      ],
+      "complexity": "complex",
+      "languageNotes": "使用spawnSync运行真实的Node和Python脚本，构建临时fixture目录树，并动态导入reminders.mjs以实现跨语言覆盖。"
+    },
+    {
+      "id": "file:tests/unit/glossary-data.test.mjs",
+      "type": "file",
+      "name": "glossary-data.test.mjs",
+      "filePath": "tests/unit/glossary-data.test.mjs",
+      "summary": "单元测试，直接校验docs/glossary.json（不经CLI）：检查JSON是否合法、术语必填字段（id/zh/en/category）是否齐全，以及作为唯一真相来源的术语表中是否存在重复id或重复术语。",
+      "tags": [
+        "test",
+        "unit",
+        "validation",
+        "glossary",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tests/unit/harness.test.mjs",
+      "type": "file",
+      "name": "harness.test.mjs",
+      "filePath": "tests/unit/harness.test.mjs",
+      "summary": "单元测试，以黑盒方式运行Node保障CLI（glossary-check、typewriter），断言对禁用术语的拦截、对规范术语的掩码处理（避免误报）、对CJK标点的强制（含自动修复），以及双语ADR脚手架的结构。",
+      "tags": [
+        "test",
+        "unit",
+        "harness",
+        "validation",
+        "cli"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "纯node:test加node:assert，无任何外部依赖；通过FORCE_COLOR/NO_COLOR强制非TTY输出以便干净解析。"
+    },
+    {
+      "id": "file:tests/unit/judges.test.mjs",
+      "type": "file",
+      "name": "judges.test.mjs",
+      "filePath": "tests/unit/judges.test.mjs",
+      "summary": "单元测试，定位一个Python解释器并以子进程方式运行design判官和wording判官脚本，断言其退出码和JSON findings输出。",
+      "tags": [
+        "test",
+        "unit",
+        "judges",
+        "validation",
+        "python-interop"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/unit/harness.test.mjs:runNode",
+      "type": "function",
+      "name": "runNode",
+      "filePath": "tests/unit/harness.test.mjs",
+      "lineRange": [
+        23,
+        32
+      ],
+      "summary": "从仓库根目录spawn`node <args...>`（关闭颜色），返回退出码、stdout和stderr，用于黑盒CLI断言。",
+      "tags": [
+        "test-helper",
+        "subprocess",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:harness/clean-temp.mjs",
+      "type": "file",
+      "name": "clean-temp.mjs",
+      "filePath": "harness/clean-temp.mjs",
+      "summary": "默认安全的CLI，用于列出（dry run）或删除本地临时/草稿杂物，拒绝删除任何git已跟踪的路径；由temp-janitor子代理和harness.config.json驱动。",
+      "tags": [
+        "utility",
+        "cli",
+        "cleanup",
+        "tooling",
+        "harness",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "纯Node ESM并带shebang；使用spawnSync('git ls-files')来防止删除已跟踪文件。"
+    },
+    {
+      "id": "file:harness/glossary-check.mjs",
+      "type": "file",
+      "name": "glossary-check.mjs",
+      "filePath": "harness/glossary-check.mjs",
+      "summary": "术语linter，依据docs/glossary.json扫描Markdown/文本，标记被禁用的非规范中文变体，同时对规范术语进行掩码以避免子串误报。",
+      "tags": [
+        "validation",
+        "cli",
+        "linter",
+        "terminology",
+        "harness",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "处理CJK术语；将规范术语按长度从长到短排序并先行掩码，再搜索被禁用的子串。"
+    },
+    {
+      "id": "file:harness/lib/util.mjs",
+      "type": "file",
+      "name": "util.mjs",
+      "filePath": "harness/lib/util.mjs",
+      "summary": "为保障体系提供的共享、零依赖工具模块，导出文件系统遍历、文件读取、散文/代码行拆分、参数解析、术语表加载、严重级别标签，以及感知TTY的ANSI颜色。",
+      "tags": [
+        "utility",
+        "shared-library",
+        "harness",
+        "helpers"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "纯Node ESM，无任何外部依赖；当stdout不是TTY时，ANSI颜色辅助函数会优雅降级。"
+    },
+    {
+      "id": "file:harness/parity-check.mjs",
+      "type": "file",
+      "name": "parity-check.mjs",
+      "filePath": "harness/parity-check.mjs",
+      "summary": "双语parity检查器，强制EN/简中文档对之间的标题结构匹配，并标记出已暂存但其孪生文档未在同一次提交中一并更新的那一半。",
+      "tags": [
+        "validation",
+        "cli",
+        "linter",
+        "bilingual",
+        "harness",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "使用spawnSync('git diff --cached')来检测暂存的共更违规；从harness.config.json读取双语文档对列表。"
+    },
+    {
+      "id": "file:harness/typewriter.mjs",
+      "type": "file",
+      "name": "typewriter.mjs",
+      "filePath": "harness/typewriter.mjs",
+      "summary": "统一文风的内容工具，提供GENERATE模式（脚手架生成双语文档模板：ADR、PRD、design、research、README）和LINT模式（强制全角CJK标点、空白和标题层级规则，支持可选的--fix）。",
+      "tags": [
+        "cli",
+        "linter",
+        "generator",
+        "house-style",
+        "harness",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "具备CJK感知能力：识别以汉字为主的行，并将紧邻CJK字符的ASCII标点自动纠正为全角等价物，同时跳过代码片段和URL。"
+    },
+    {
+      "id": "function:harness/lib/util.mjs:walk",
+      "type": "function",
+      "name": "walk",
+      "filePath": "harness/lib/util.mjs",
+      "lineRange": [
+        10,
+        26
+      ],
+      "summary": "按扩展名列表过滤，递归收集目标路径下的文件，跳过node_modules和.git等常见忽略目录。",
+      "tags": [
+        "utility",
+        "filesystem",
+        "recursion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/lib/util.mjs:read",
+      "type": "function",
+      "name": "read",
+      "filePath": "harness/lib/util.mjs",
+      "lineRange": [
+        29,
+        31
+      ],
+      "summary": "读取一个UTF-8文件并返回其内容，遇到任何错误时回退为空字符串。",
+      "tags": [
+        "utility",
+        "filesystem",
+        "io"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/lib/util.mjs:proseLines",
+      "type": "function",
+      "name": "proseLines",
+      "filePath": "harness/lib/util.mjs",
+      "lineRange": [
+        34,
+        42
+      ],
+      "summary": "将文本拆分为逐行记录，同时剥离围栏代码块和行内代码，使下游linter跳过代码块和代码片段。",
+      "tags": [
+        "utility",
+        "parsing",
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/lib/util.mjs:parseArgs",
+      "type": "function",
+      "name": "parseArgs",
+      "filePath": "harness/lib/util.mjs",
+      "lineRange": [
+        45,
+        57
+      ],
+      "summary": "极简CLI参数解析器，返回位置参数和标志，支持--key=value、--key value以及布尔型--key三种形式。",
+      "tags": [
+        "utility",
+        "cli",
+        "argument-parsing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/lib/util.mjs:loadGlossary",
+      "type": "function",
+      "name": "loadGlossary",
+      "filePath": "harness/lib/util.mjs",
+      "lineRange": [
+        60,
+        63
+      ],
+      "summary": "加载并解析规范术语表JSON（默认docs/glossary.json），返回解析后的对象，失败时返回null。",
+      "tags": [
+        "utility",
+        "configuration",
+        "glossary"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/lib/util.mjs:sevTag",
+      "type": "function",
+      "name": "sevTag",
+      "filePath": "harness/lib/util.mjs",
+      "lineRange": [
+        77,
+        80
+      ],
+      "summary": "将严重级别代码（P0-P3）映射为带颜色的方括号标签，用于终端输出。",
+      "tags": [
+        "utility",
+        "formatting",
+        "severity"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/parity-check.mjs:headingProfile",
+      "type": "function",
+      "name": "headingProfile",
+      "filePath": "harness/parity-check.mjs",
+      "lineRange": [
+        35,
+        47
+      ],
+      "summary": "按层级统计某个文件的Markdown标题数量（忽略围栏代码块），用于比较双语孪生文档之间的结构parity。",
+      "tags": [
+        "utility",
+        "markdown",
+        "parsing",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/typewriter.mjs:generate",
+      "type": "function",
+      "name": "generate",
+      "filePath": "harness/typewriter.mjs",
+      "lineRange": [
+        27,
+        43
+      ],
+      "summary": "GENERATE模式入口，依据指定模板脚手架生成统一文风的双语文档，写入文件或stdout。",
+      "tags": [
+        "generator",
+        "templating",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:harness/typewriter.mjs:lint",
+      "type": "function",
+      "name": "lint",
+      "filePath": "harness/typewriter.mjs",
+      "lineRange": [
+        105,
+        208
+      ],
+      "summary": "LINT模式引擎，对Markdown强制统一文风——全角CJK标点、无行尾空白、无制表符、不跳过标题层级、双语标题平衡——并支持可选的--fix自动纠正。",
+      "tags": [
+        "linter",
+        "validation",
+        "house-style",
+        "cjk"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:harness/typewriter.mjs:fixCjkPunct",
+      "type": "function",
+      "name": "fixCjkPunct",
+      "filePath": "harness/typewriter.mjs",
+      "lineRange": [
+        211,
+        228
+      ],
+      "summary": "在一行内将紧邻CJK字符的ASCII标点转换为全角等价物，同时保留代码片段、URL和小数点。",
+      "tags": [
+        "utility",
+        "cjk",
+        "text-transformation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:.github/workflows/ci.yml",
+      "type": "pipeline",
+      "name": "ci.yml",
+      "filePath": ".github/workflows/ci.yml",
+      "summary": "GitHub Actions CI工作流，在每次push和pull request上运行主质量gate（harness/gate.mjs），配置Node 20和Python 3.12以执行术语检查、typewriter lint、design/wording判官以及测试。",
+      "tags": [
+        "ci-cd",
+        "infrastructure",
+        "quality-gate",
+        "deployment"
+      ],
+      "complexity": "simple",
+      "languageNotes": "使用带cancel-in-progress的concurrency分组以中止被取代的运行，并采用容错的`npm ci || npm install`安装步骤，可容忍缺失的lockfile。"
+    },
+    {
+      "id": "step:.github/workflows/ci.yml:gate",
+      "type": "step",
+      "name": "gate",
+      "filePath": ".github/workflows/ci.yml",
+      "summary": "在ubuntu-latest上运行的单一CI作业“Quality gate”：检出源码、配置Node 20和Python 3.12、安装依赖，并运行`node harness/gate.mjs`作为必需的状态检查。",
+      "tags": [
+        "ci-cd",
+        "quality-gate",
+        "test",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "pipeline:.github/workflows/pages.yml",
+      "type": "pipeline",
+      "name": "pages.yml",
+      "filePath": ".github/workflows/pages.yml",
+      "summary": "GitHub Actions工作流，在每次push到main时（以及通过手动dispatch）构建并部署静态docs/着陆站点到GitHub Pages，采用最小权限和官方Pages actions。",
+      "tags": [
+        "ci-cd",
+        "deployment",
+        "infrastructure",
+        "github-pages"
+      ],
+      "complexity": "simple",
+      "languageNotes": "两阶段流水线（先build后deploy，通过`needs`衔接），使用最小权限的`pages: write`/`id-token: write`，并配置专用的`github-pages`环境。"
+    },
+    {
+      "id": "step:.github/workflows/pages.yml:build",
+      "type": "step",
+      "name": "build",
+      "filePath": ".github/workflows/pages.yml",
+      "summary": "build作业：检出仓库、配置Pages，并将docs/文件夹作为Pages制品上传。",
+      "tags": [
+        "ci-cd",
+        "deployment",
+        "build-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "step:.github/workflows/pages.yml:deploy",
+      "type": "step",
+      "name": "deploy",
+      "filePath": ".github/workflows/pages.yml",
+      "summary": "deploy作业：依赖build作业，将已上传的制品发布到github-pages环境，并暴露生成的页面URL。",
+      "tags": [
+        "ci-cd",
+        "deployment",
+        "github-pages"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/agents/compliance-sentinel.md",
+      "type": "document",
+      "name": "compliance-sentinel.md",
+      "filePath": ".claude/agents/compliance-sentinel.md",
+      "summary": "定义Compliance Sentinel（合规哨兵）子代理，针对微信平台规则和中国监管合规（内容审核、ICP备案、未成年人数据、教育资质）对文档和代码生成带P0-P3评分的审计，服务于该幼儿园平台。",
+      "tags": [
+        "agent-definition",
+        "documentation",
+        "compliance",
+        "security",
+        "audit"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Claude Code子代理定义：YAML frontmatter（name/description/tools）后接一段system prompt，含P0-P3严重级别清单和固定的审计输出模板。"
+    },
+    {
+      "id": "document:.claude/agents/content-council.md",
+      "type": "document",
+      "name": "content-council.md",
+      "filePath": ".claude/agents/content-council.md",
+      "summary": "定义Content Council（内容委员会）子代理，以5种原型的多视角研讨方式审视文档和UI文案的清晰度、EN/简中双语对齐、术语和合规，背后由保障体系的wording判官和术语检查器支撑。",
+      "tags": [
+        "agent-definition",
+        "documentation",
+        "content-review",
+        "bilingual",
+        "deliberation"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "遵循consciousness-council方法的三阶段委员会prompt（Summon/Deliberation/Synthesis）；要求各原型之间存在实质性分歧，并将结论锚定于保障体系的证据。"
+    },
+    {
+      "id": "document:.claude/agents/design-council.md",
+      "type": "document",
+      "name": "design-council.md",
+      "filePath": ".claude/agents/design-council.md",
+      "summary": "定义Design Council（设计委员会）子代理，召集6个量身定制的原型从相互冲突的视角评判某个设计制品或DESIGN.md，背后由保障体系的design判官和花叔五维评分标准支撑。",
+      "tags": [
+        "agent-definition",
+        "documentation",
+        "design-review",
+        "deliberation",
+        "ui"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "三阶段委员会prompt（Summon/Deliberation/Synthesis）；强制项目设计不变量（CJK排版、8pt间距、反AI slop），并基于一个确定性的判官分数进行推理。"
+    },
+    {
+      "id": "document:.claude/agents/design-judge.md",
+      "type": "document",
+      "name": "design-judge.md",
+      "filePath": ".claude/agents/design-judge.md",
+      "summary": "定义Design Judge（设计判官）子代理，使用花叔五维评分标准和确定性的保障体系design判官，对单个设计制品给出一份带评分的裁定，返回各维度0-10分、质量等级以及按严重级别排序的修复建议。",
+      "tags": [
+        "agent-definition",
+        "documentation",
+        "design-review",
+        "scoring",
+        "validation"
+      ],
+      "complexity": "simple",
+      "languageNotes": "单裁定（非小组）判官prompt，采用Procedure/项目专属检查/固定Output模板的结构。"
+    },
+    {
+      "id": "document:.claude/agents/structure-judge.md",
+      "type": "document",
+      "name": "structure-judge.md",
+      "filePath": ".claude/agents/structure-judge.md",
+      "summary": "定义Structure Judge（结构判官）子代理，在应用结构发生漂移时进行拦截，通过将页面清单和路由映射与app-structure.json及/understand-anything知识图谱比对，验证代码库符合由源流程图推导出的约定结构。",
+      "tags": [
+        "agent-definition",
+        "documentation",
+        "validation",
+        "architecture",
+        "scoring"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "单裁定判官prompt，强制结构不变量（屏幕到页面的映射、UGC内容审核gate、角色访问），采用P0-P3严重级别方案和固定的裁定模板。"
+    },
+    {
+      "id": "document:.claude/agents/temp-janitor.md",
+      "type": "document",
+      "name": "temp-janitor.md",
+      "filePath": ".claude/agents/temp-janitor.md",
+      "summary": "定义Temp Janitor（临时清理工）子代理，通过harness/clean-temp.mjs安全地审查和清理本地临时/草稿杂物，始终先列出目标，并在删除任何内容前要求用户明确确认。",
+      "tags": [
+        "agent-definition",
+        "documentation",
+        "cleanup",
+        "utility",
+        "tooling"
+      ],
+      "complexity": "simple",
+      "languageNotes": "配备Bash/Read/AskUserQuestion工具的子代理；采用先dry-run后确认的流程，拒绝删除git已跟踪或受保护的路径。"
+    },
+    {
+      "id": "document:.claude/agents/wording-judge.md",
+      "type": "document",
+      "name": "wording-judge.md",
+      "filePath": ".claude/agents/wording-judge.md",
+      "summary": "定义Wording Judge（文字判官）子代理，使用保障体系的wording判官和术语检查器对单个文档给出一份带评分的裁定，返回各维度0-10分、双语对齐状态、术语违规以及有序的修复建议。",
+      "tags": [
+        "agent-definition",
+        "documentation",
+        "content-review",
+        "scoring",
+        "validation"
+      ],
+      "complexity": "simple",
+      "languageNotes": "单裁定（非小组）判官prompt，采用Procedure/项目专属检查/固定Output模板的结构；强制规范术语表用词和双语同步。"
+    },
+    {
+      "id": "document:AGENTS.md",
+      "type": "document",
+      "name": "AGENTS.md",
+      "filePath": "AGENTS.md",
+      "summary": "工具无关的规范贡献者与代理契约：黄金法则、保障体系命令参考、hook分层、评审子代理、gate提醒、提交约定和仓库地图。CLAUDE.md导入它，并在重叠之处以它为准。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "governance",
+        "contributor-guide",
+        "harness"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "采用EN/简中双语散文，对以中文为主的行强制全角标点；用行内代码转义被禁用的术语变体。"
+    },
+    {
+      "id": "document:CLAUDE.md",
+      "type": "document",
+      "name": "CLAUDE.md",
+      "filePath": "CLAUDE.md",
+      "summary": "叠加在AGENTS.md之上的Claude Code工作约定（通过原生@AGENTS.md指令导入）：如何在本仓库中工作、应委派给哪些项目子代理、如何用typewriter生成脚手架，以及上线的硬性要求。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "governance",
+        "ai-agent",
+        "working-agreement"
+      ],
+      "complexity": "simple",
+      "languageNotes": "以Claude Code的@导入指令（@AGENTS.md）开头，在会话开始时将规范契约拉入上下文。"
+    },
+    {
+      "id": "document:CONTEXT.md",
+      "type": "document",
+      "name": "CONTEXT.md",
+      "filePath": "CONTEXT.md",
+      "summary": "人类可读的双语领域术语表（角色、模块、功能、动作、合规及技术术语），与机器可读的docs/glossary.json保持镜像；只承载术语，不含规约或决策。",
+      "tags": [
+        "documentation",
+        "glossary",
+        "terminology",
+        "domain-model",
+        "bilingual"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "每条目遵循“规范简中（规范英文）——定义。避免：被禁用变体”的模式，由术语检查器和wording判官强制执行。"
+    },
+    {
+      "id": "document:HANDOFF.md",
+      "type": "document",
+      "name": "HANDOFF.md",
+      "filePath": "HANDOFF.md",
+      "summary": "受跟踪的、动态更新的会话交接文档：规约/保障体系基础的当前状态、待产品负责人确认的开放决策、后续动作、建议的skills和指引；通过/handoff skill刷新，并由gate的交接提醒督促。",
+      "tags": [
+        "documentation",
+        "handoff",
+        "project-status",
+        "session-notes",
+        "bilingual"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:Platform Flow.txt",
+      "type": "document",
+      "name": "Platform Flow.txt",
+      "filePath": "Platform Flow.txt",
+      "summary": "平台交互与导航逻辑的源Mermaid流程图（首页、各模块、评估、共育等流程）——作为权威的流程参考，docs/APP-STRUCTURE.md与之1:1镜像，结构判官也以其为依据强制执行。",
+      "tags": [
+        "documentation",
+        "flowchart",
+        "mermaid",
+        "navigation",
+        "specification"
+      ],
+      "complexity": "complex",
+      "languageNotes": "包含多个内嵌的Mermaid流程图块，节点标签为中文；它作为结构上的真相来源图，而非散文。"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "英文项目概览：这个规约与保障体系仓库是什么、为何采用规约先行的方式、仓库内容表、快速上手命令、五步质量gate、强制合规以及状态。是新贡献者的入口。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview",
+        "quick-start",
+        "bilingual"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:README.zh-CN.md",
+      "type": "document",
+      "name": "README.zh-CN.md",
+      "filePath": "README.zh-CN.md",
+      "summary": "README.md的简体中文孪生版：项目概览、规约与保障体系仓库的缘由、内容表、快速上手、质量gate和合规必备项；通过parity检查与英文README保持对齐。",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview",
+        "chinese",
+        "bilingual"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "以中文为主的散文，使用全角标点；是由harness/parity-check.mjs守护的EN/简中README parity对中的一半。"
+    },
+    {
+      "id": "config:package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "package.json",
+      "summary": "china-kg-platform的npm清单，定义保障体系的命令面（gate、glossary、lint、judges、parity、tests、hook安装）以及Node>=18/ESM的项目配置；私有、无许可证的内部项目。",
+      "tags": [
+        "configuration",
+        "npm",
+        "build-system",
+        "harness",
+        "scripts"
+      ],
+      "complexity": "simple",
+      "languageNotes": "type: module（ESM）；prepare生命周期脚本通过harness/install-hooks.mjs自动安装git hook，judge脚本则调用Python保障模块。"
+    },
+    {
+      "id": "document:docs/APP-STRUCTURE.md",
+      "type": "document",
+      "name": "APP-STRUCTURE.md",
+      "filePath": "docs/APP-STRUCTURE.md",
+      "summary": "平台结构的真相来源：以双语1:1镜像源Mermaid流程图，描述全部八个模块、角色访问和强制的结构不变量。由它推导出供结构判官消费的机器可读契约。",
+      "tags": [
+        "documentation",
+        "specification",
+        "app-structure",
+        "bilingual",
+        "schema-definition"
+      ],
+      "complexity": "complex",
+      "languageNotes": "内嵌Mermaid图表的双语（英文/中文）规约；与harness/structure/app-structure.json成对，后者由结构判官强制执行。"
+    },
+    {
+      "id": "document:docs/DESIGN.md",
+      "type": "document",
+      "name": "DESIGN.md",
+      "filePath": "docs/DESIGN.md",
+      "summary": "设计系统规约，为该幼儿园平台定义面向机器的设计token、配色、排版、组件样式、布局原则、动效和无障碍规则。作为docs站点所用token的权威来源。",
+      "tags": [
+        "documentation",
+        "design-system",
+        "design-tokens",
+        "bilingual",
+        "style-guide"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:docs/GRILLING.md",
+      "type": "document",
+      "name": "GRILLING.md",
+      "filePath": "docs/GRILLING.md",
+      "summary": "计划压力测试记录，收录术语澄清、角色/权限决策、内容生命周期问题、技术栈说明，以及构建前需向幼儿园确认的开放问题。",
+      "tags": [
+        "documentation",
+        "decision-log",
+        "open-questions",
+        "bilingual",
+        "planning"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:docs/PRD.md",
+      "type": "document",
+      "name": "PRD.md",
+      "filePath": "docs/PRD.md",
+      "summary": "英文主版产品需求文档（PRD），定义平台的问题陈述、目标、角色、八个模块规约、合规要求、数据模型和里程碑。作为“平台做什么”的契约，并由仓库的保障体系强制执行。",
+      "tags": [
+        "documentation",
+        "prd",
+        "specification",
+        "entry-point",
+        "requirements"
+      ],
+      "complexity": "complex",
+      "languageNotes": "英文主文档；必须与其简体中文孪生PRD.zh-CN.md保持章节对齐。"
+    },
+    {
+      "id": "document:docs/PRD.zh-CN.md",
+      "type": "document",
+      "name": "PRD.zh-CN.md",
+      "filePath": "docs/PRD.zh-CN.md",
+      "summary": "产品需求文档的简体中文孪生版，与英文主版章节对齐，覆盖该幼儿园平台相同的问题陈述、目标、角色、模块规约、合规和里程碑。",
+      "tags": [
+        "documentation",
+        "prd",
+        "specification",
+        "chinese",
+        "requirements"
+      ],
+      "complexity": "complex",
+      "languageNotes": "简体中文译本，与英文PRD.md主版逐章节保持同步。"
+    },
+    {
+      "id": "config:docs/glossary.json",
+      "type": "config",
+      "name": "glossary.json",
+      "filePath": "docs/glossary.json",
+      "summary": "权威双语术语表，作为平台术语的唯一真相来源，逐术语给出中/英用词、定义、被禁用变体以及大小写/标点规则。由wording判官和术语检查器读取，以在所有文档中强制术语一致。",
+      "tags": [
+        "configuration",
+        "glossary",
+        "terminology",
+        "bilingual",
+        "data-contract"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "结构化的术语注册表，其variants_forbidden列表由harness/judges/wording_judge.py和harness/glossary-check.mjs作为P1 findings强制执行。"
+    },
+    {
+      "id": "file:docs/index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "docs/index.html",
+      "summary": "文档站点的静态双语着陆页，呈现平台概览、八个模块、三类客户端角色、合规要求，以及指向PRD、设计系统、术语表和research文档的链接。镜像docs/规约并复用DESIGN.md的token。",
+      "tags": [
+        "markup",
+        "documentation",
+        "landing-page",
+        "static-site",
+        "bilingual"
+      ],
+      "complexity": "complex",
+      "languageNotes": "自包含的HTML，内联了设计系统的:root token镜像；依赖assets/styles.css和Google Fonts（Nunito加Noto Sans SC）。"
+    },
+    {
+      "id": "document:docs/adr/0001-repository-as-spec-and-harness-foundation.md",
+      "type": "document",
+      "name": "0001-repository-as-spec-and-harness-foundation.md",
+      "filePath": "docs/adr/0001-repository-as-spec-and-harness-foundation.md",
+      "summary": "已接受的ADR，确立本仓库是治理/规约与质量保障的基础（双语PRD、DESIGN.md、术语表、judge/hook/test保障体系），而非应用代码——后者将稍后在此保障体系之下加入。",
+      "tags": [
+        "documentation",
+        "adr",
+        "architecture-decision",
+        "governance",
+        "bilingual"
+      ],
+      "complexity": "simple",
+      "languageNotes": "遵循Context/Decision/Alternatives/Consequences模板的双语ADR（英文加中文）。"
+    },
+    {
+      "id": "document:docs/adr/0002-co-education-naming.md",
+      "type": "document",
+      "name": "0002-co-education-naming.md",
+      "filePath": "docs/adr/0002-co-education-naming.md",
+      "summary": "已接受的ADR，确定规范模块名为家园社共育（home-school-community co-education），并将家园共育记录为由术语检查器强制禁用的遗留变体。",
+      "tags": [
+        "documentation",
+        "adr",
+        "architecture-decision",
+        "terminology",
+        "glossary"
+      ],
+      "complexity": "simple",
+      "languageNotes": "双语ADR；裁定一项由机器检查的术语表强制执行的术语契约。"
+    },
+    {
+      "id": "document:docs/adr/0003-client-framework.md",
+      "type": "document",
+      "name": "0003-client-framework.md",
+      "filePath": "docs/adr/0003-client-framework.md",
+      "summary": "提议中的ADR，推荐uni-app（Vue 3）作为单一客户端框架，编译产出微信小程序和H5 PC后台，以Taro作为备选；最终决定待微信research评审后再定。",
+      "tags": [
+        "documentation",
+        "adr",
+        "architecture-decision",
+        "client-framework",
+        "wechat"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "双语ADR，附有uni-app对比Taro对比原生小程序的对照表。"
+    },
+    {
+      "id": "document:docs/adr/0004-backend-cloudbase-vs-alibaba.md",
+      "type": "document",
+      "name": "0004-backend-cloudbase-vs-alibaba.md",
+      "filePath": "docs/adr/0004-backend-cloudbase-vs-alibaba.md",
+      "summary": "提议中的ADR，解释微信CloudBase与阿里云的差异，并推荐后端采取CloudBase优先、阿里云就绪的姿态（数据、函数、存储、鉴权），藏在一层薄抽象之后；最终决定交由产品负责人。",
+      "tags": [
+        "documentation",
+        "adr",
+        "architecture-decision",
+        "backend",
+        "cloud-platform"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "双语ADR，附有CloudBase入门讲解和逐维度对照表。"
+    },
+    {
+      "id": "document:docs/adr/0005-mandatory-content-moderation.md",
+      "type": "document",
+      "name": "0005-mandatory-content-moderation.md",
+      "filePath": "docs/adr/0005-mandatory-content-moderation.md",
+      "summary": "已接受的ADR，强制要求对所有用户生成内容在其可见之前，必须经过不可绕过的服务端内容审核gate（微信security.msgSecCheck/security.mediaCheckAsync），并采用待通过前为pending的发布流程。",
+      "tags": [
+        "documentation",
+        "adr",
+        "architecture-decision",
+        "content-moderation",
+        "compliance"
+      ],
+      "complexity": "simple",
+      "languageNotes": "双语ADR；这一横切合规gate被ADR-0003和ADR-0004引用，并由保障体系的code-review检查强制执行。"
+    },
+    {
+      "id": "document:docs/adr/0006-harness-language.md",
+      "type": "document",
+      "name": "0006-harness-language.md",
+      "filePath": "docs/adr/0006-harness-language.md",
+      "summary": "已接受的ADR，选定混合的保障体系工具链：Node（ESM）负责hook、术语检查器、typewriter、gate运行器和测试，Python（仅标准库）负责Node gate所调用的design和wording判官。",
+      "tags": [
+        "documentation",
+        "adr",
+        "architecture-decision",
+        "build-system",
+        "tooling"
+      ],
+      "complexity": "simple",
+      "languageNotes": "双语ADR；记录了“Node gate调用Python判官”的架构，统一藏在一条npm run gate命令之后。"
+    },
+    {
+      "id": "document:tests/fixtures/clean.md",
+      "type": "document",
+      "name": "clean.md",
+      "filePath": "tests/fixtures/clean.md",
+      "summary": "测试fixture，代表一个完全通过lint的双语（中文/英文）规约页面，使用规范术语和正确标点，作为内容linting测试的通过基线。",
+      "tags": [
+        "test-fixture",
+        "documentation",
+        "linting",
+        "bilingual",
+        "golden-file"
+      ],
+      "complexity": "simple",
+      "languageNotes": "双语zh/en标题；作为内容文风校验器的“干净”预期通过用例。"
+    },
+    {
+      "id": "document:tests/fixtures/glossary-bad.md",
+      "type": "document",
+      "name": "glossary-bad.md",
+      "filePath": "tests/fixtures/glossary-bad.md",
+      "summary": "反例测试fixture，包含非规范的术语用词，预期会被术语linter标记为违规。",
+      "tags": [
+        "test-fixture",
+        "documentation",
+        "linting",
+        "glossary",
+        "negative-case"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:tests/fixtures/glossary-canonical-mask.md",
+      "type": "document",
+      "name": "glossary-canonical-mask.md",
+      "filePath": "tests/fixtures/glossary-canonical-mask.md",
+      "summary": "边界用例fixture，其中被禁用术语的子串出现在合法的规范短语内部（例如待办事项中的待办），用于验证术语linter不会产生误报。",
+      "tags": [
+        "test-fixture",
+        "documentation",
+        "linting",
+        "glossary",
+        "false-positive"
+      ],
+      "complexity": "simple",
+      "languageNotes": "测试子串掩码：嵌入在规范中文术语内的被禁用字面片段不得被报告。"
+    },
+    {
+      "id": "file:tests/fixtures/sample.html",
+      "type": "file",
+      "name": "sample.html",
+      "filePath": "tests/fixtures/sample.html",
+      "summary": "HTML示例fixture，含内联CSS设计token、字号、行高以及一个达到触控目标尺寸的按钮，用于演练markup/无障碍/设计token的linting检查。",
+      "tags": [
+        "test-fixture",
+        "markup",
+        "linting",
+        "accessibility",
+        "design-tokens"
+      ],
+      "complexity": "simple",
+      "languageNotes": "内联CSS自定义属性（--color-*、--space-*）和一个最小触控目标为48px的.btn，用于无障碍校验。"
+    },
+    {
+      "id": "document:tests/fixtures/typewriter-bad.md",
+      "type": "document",
+      "name": "typewriter-bad.md",
+      "filePath": "tests/fixtures/typewriter-bad.md",
+      "summary": "反例fixture，在中文文本中使用半角ASCII标点，预期会被typewriter/全角标点linter标记。",
+      "tags": [
+        "test-fixture",
+        "documentation",
+        "linting",
+        "punctuation",
+        "negative-case"
+      ],
+      "complexity": "simple",
+      "languageNotes": "在中文散文中使用ASCII括号和逗号，以触发半角标点违规。"
+    },
+    {
+      "id": "document:tests/fixtures/typewriter-clean.md",
+      "type": "document",
+      "name": "typewriter-clean.md",
+      "filePath": "tests/fixtures/typewriter-clean.md",
+      "summary": "正例fixture，使用正确的全角中文标点，并包含豁免用例（小数点、拉丁语境中的英文逗号），标点linter不得对其误报。",
+      "tags": [
+        "test-fixture",
+        "documentation",
+        "linting",
+        "punctuation",
+        "false-positive"
+      ],
+      "complexity": "simple",
+      "languageNotes": "验证对全角标点的接受，同时豁免小数（1.5）和拉丁语境逗号。"
+    },
+    {
+      "id": "document:tests/fixtures/wording-sample.md",
+      "type": "document",
+      "name": "wording-sample.md",
+      "filePath": "tests/fixtures/wording-sample.md",
+      "summary": "双语用词示例fixture，将英文内容与中文引用块译文配对，用于测试术语和用词一致性检查。",
+      "tags": [
+        "test-fixture",
+        "documentation",
+        "linting",
+        "wording",
+        "bilingual"
+      ],
+      "complexity": "simple",
+      "languageNotes": "英文正文配以并行的中文引用块，用于跨语言用词校验。"
+    },
+    {
+      "id": "file:.claude/hooks/post-edit-check.mjs",
+      "type": "file",
+      "name": "post-edit-check.mjs",
+      "filePath": ".claude/hooks/post-edit-check.mjs",
+      "summary": "Claude Code的PostToolUse hook，在一次Markdown编辑之后运行typewriter文风和术语检查器，当存在拦截性findings（P0/P1/P2）时以非零（code 2）退出并给出指引。",
+      "tags": [
+        "hook",
+        "validation",
+        "event-handler",
+        "markdown",
+        "harness",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "带超时保护地从stdin读取tool-use载荷；通过spawnSync调用保障体系检查器并解析其JSON尾部。"
+    },
+    {
+      "id": "function:.claude/hooks/post-edit-check.mjs:main",
+      "type": "function",
+      "name": "main",
+      "filePath": ".claude/hooks/post-edit-check.mjs",
+      "lineRange": [
+        74,
+        151
+      ],
+      "summary": "编排编辑后检查：解析hook载荷、限定为仓库内的Markdown、运行typewriter和术语检查器，并将拦截性findings输出到stderr并以退出码2退出。",
+      "tags": [
+        "entry-point",
+        "validation",
+        "event-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:.claude/hooks/post-edit-check.mjs:runChecker",
+      "type": "function",
+      "name": "runChecker",
+      "filePath": ".claude/hooks/post-edit-check.mjs",
+      "lineRange": [
+        56,
+        72
+      ],
+      "summary": "针对某个文件spawn一个保障体系检查器脚本，并从stdout解析其JSON结果，可容忍非JSON的前导内容。",
+      "tags": [
+        "utility",
+        "serialization",
+        "harness"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:.claude/hooks/post-edit-check.mjs:readStdin",
+      "type": "function",
+      "name": "readStdin",
+      "filePath": ".claude/hooks/post-edit-check.mjs",
+      "lineRange": [
+        32,
+        49
+      ],
+      "summary": "从stdin读取tour-use的JSON载荷，在流结束时尽早resolve，并通过一个短促的unref定时器作回退，使hook永不挂起。",
+      "tags": [
+        "utility",
+        "io",
+        "event-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.claude/hooks/pre-edit-guard.mjs",
+      "type": "file",
+      "name": "pre-edit-guard.mjs",
+      "filePath": ".claude/hooks/pre-edit-guard.mjs",
+      "summary": "Claude Code的PreToolUse hook，检查目标文件路径，拦截对受保护路径（.git、LICENSE、lockfile、被锁定的术语表）的编辑，同时放行保障体系、工作流和githooks文件。",
+      "tags": [
+        "hook",
+        "security",
+        "validation",
+        "event-handler",
+        "harness",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "路径白名单/黑名单守卫，会规范化反斜杠；退出0放行，退出2拦截待执行的编辑。"
+    },
+    {
+      "id": "function:.claude/hooks/pre-edit-guard.mjs:main",
+      "type": "function",
+      "name": "main",
+      "filePath": ".claude/hooks/pre-edit-guard.mjs",
+      "lineRange": [
+        72,
+        137
+      ],
+      "summary": "解析待执行编辑的载荷并应用受保护路径的放行/拦截规则，拦截.git、LICENSE、lockfile和被锁定的术语表，同时允许保障体系和CI路径。",
+      "tags": [
+        "entry-point",
+        "security",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:.claude/hooks/pre-edit-guard.mjs:readStdin",
+      "type": "function",
+      "name": "readStdin",
+      "filePath": ".claude/hooks/pre-edit-guard.mjs",
+      "lineRange": [
+        30,
+        48
+      ],
+      "summary": "读取hook的stdin载荷，在流结束时resolve并带超时回退，使该守卫无法卡住编辑器。",
+      "tags": [
+        "utility",
+        "io",
+        "event-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.claude/hooks/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": ".claude/hooks/README.md",
+      "summary": "记录两个Claude Code编辑器hook、它们的退出码契约（0放行，2拦截）、编辑前的术语表锁定与解锁流程，以及如何手动测试这些hook。",
+      "tags": [
+        "documentation",
+        "hook",
+        "harness"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.claude/settings.json",
+      "type": "config",
+      "name": "settings.json",
+      "filePath": ".claude/settings.json",
+      "summary": "Claude Code设置，将PreToolUse和PostToolUse的Edit/Write/MultiEdit hook分别接到pre-edit-guard.mjs和post-edit-check.mjs。",
+      "tags": [
+        "configuration",
+        "hook",
+        "claude-code"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.gitattributes",
+      "type": "config",
+      "name": ".gitattributes",
+      "filePath": ".gitattributes",
+      "summary": "Git属性配置，对全仓库（以及特别针对shell hook）强制LF行尾，并将图像/字体/PDF资源标记为二进制，以保证跨平台一致性。",
+      "tags": [
+        "configuration",
+        "build-system",
+        "version-control"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.githooks/commit-msg",
+      "type": "file",
+      "name": "commit-msg",
+      "filePath": ".githooks/commit-msg",
+      "summary": "POSIX shell的commit-msg git hook，对提交主题行强制Conventional Commits，同时放行merge、revert、fixup和squash提交。",
+      "tags": [
+        "git-hook",
+        "validation",
+        "ci-cd",
+        "script"
+      ],
+      "complexity": "simple",
+      "languageNotes": "sh hook；主题行依据带项目专属type列表的Conventional Commits正则进行校验。"
+    },
+    {
+      "id": "file:.githooks/pre-commit",
+      "type": "file",
+      "name": "pre-commit",
+      "filePath": ".githooks/pre-commit",
+      "summary": "POSIX shell的pre-commit git hook，定位node并运行保障体系质量gate（harness/gate.mjs），失败时拦截提交，除非用--no-verify绕过。",
+      "tags": [
+        "git-hook",
+        "ci-cd",
+        "validation",
+        "script"
+      ],
+      "complexity": "simple",
+      "languageNotes": "sh hook，含针对Git-for-Windows的node路径回退；所有gating逻辑均委派给harness/gate.mjs。"
+    },
+    {
+      "id": "document:.github/PULL_REQUEST_TEMPLATE.md",
+      "type": "document",
+      "name": "PULL_REQUEST_TEMPLATE.md",
+      "filePath": ".github/PULL_REQUEST_TEMPLATE.md",
+      "summary": "双语（中文/English）pull request模板，含摘要、检查清单和备注等小节，用于标准化贡献说明。",
+      "tags": [
+        "documentation",
+        "ci-cd",
+        "template",
+        "bilingual"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.nojekyll",
+      "type": "file",
+      "name": ".nojekyll",
+      "filePath": ".nojekyll",
+      "summary": "空标记文件，在仓库根目录禁用GitHub Pages的Jekyll处理。",
+      "tags": [
+        "configuration",
+        "deployment",
+        "github-pages"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:docs/.nojekyll",
+      "type": "file",
+      "name": ".nojekyll",
+      "filePath": "docs/.nojekyll",
+      "summary": "空标记文件，为docs/站点目录禁用GitHub Pages的Jekyll处理。",
+      "tags": [
+        "configuration",
+        "deployment",
+        "github-pages"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:docs/assets/styles.css",
+      "type": "file",
+      "name": "styles.css",
+      "filePath": "docs/assets/styles.css",
+      "summary": "化龙幼儿园资源平台的着陆页样式表，实现docs/DESIGN.md的设计系统，采用CSS自定义属性token、8pt间距网格、双字族以及移动优先的响应式布局。",
+      "tags": [
+        "stylesheet",
+        "design-system",
+        "markup",
+        "responsive"
+      ],
+      "complexity": "complex",
+      "languageNotes": "token驱动的CSS，使用:root自定义属性；对CJK友好的正文行距和百分比标题行高；design判官会以同一套token/网格规则审计此类文件。"
+    },
+    {
+      "id": "document:docs/research/wechat-dev-plan.md",
+      "type": "document",
+      "name": "wechat-dev-plan.md",
+      "filePath": "docs/research/wechat-dev-plan.md",
+      "summary": "research笔记，回答是否需要学习微信小程序官方框架文档，并推荐一条具体的开发路径。",
+      "tags": [
+        "documentation",
+        "research",
+        "wechat-miniprogram",
+        "planning"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/research/wechat-miniprogram.md",
+      "type": "document",
+      "name": "wechat-miniprogram.md",
+      "filePath": "docs/research/wechat-miniprogram.md",
+      "summary": "全面的微信小程序平台research，覆盖账号注册、ICP备案、框架与后端选型、所需SDK/API、平台限制、未成年人/教育合规，以及推荐的技术栈决策。",
+      "tags": [
+        "documentation",
+        "research",
+        "wechat-miniprogram",
+        "compliance",
+        "architecture"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:harness/code-review.mjs",
+      "type": "file",
+      "name": "code-review.mjs",
+      "filePath": "harness/code-review.mjs",
+      "summary": "轻量、零依赖的静态code-review检查，面向未来的应用源码（src/miniprogram/app）；目前为空操作，一旦应用代码落地便会激活并按一份精选的反模式清单进行扫描。",
+      "tags": [
+        "harness",
+        "validation",
+        "static-analysis",
+        "code-review"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "纯Node，Windows安全；遇P0/P1 findings时退出1，P2/P3从不拦截。"
+    },
+    {
+      "id": "function:harness/code-review.mjs:walk",
+      "type": "function",
+      "name": "walk",
+      "filePath": "harness/code-review.mjs",
+      "lineRange": [
+        31,
+        45
+      ],
+      "summary": "递归遍历目标路径，按扩展名收集源文件，同时跳过node_modules和构建产物等被忽略的目录。",
+      "tags": [
+        "utility",
+        "filesystem",
+        "recursion"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:harness/gate.mjs",
+      "type": "file",
+      "name": "gate.mjs",
+      "filePath": "harness/gate.mjs",
+      "summary": "提交质量gate：按harness.config.json声明的级别运行术语、typewriter、structure/design/wording判官、parity和测试，触发handoff/understand-map/temp提醒，并在任何拦截性失败时以非零退出来拦截提交。",
+      "tags": [
+        "harness",
+        "entry-point",
+        "ci-cd",
+        "orchestrator",
+        "validation",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "纯Node驱动器；检测Python解释器并调用Python判官，支持--fast和--no-judges模式。"
+    },
+    {
+      "id": "config:harness/harness.config.json",
+      "type": "config",
+      "name": "harness.config.json",
+      "filePath": "harness/harness.config.json",
+      "summary": "中央保障体系配置，声明每项检查的级别（off/warn/block）、判官阈值、双语文档对、临时清理路径，以及handoff/understand-map的提醒目标。",
+      "tags": [
+        "configuration",
+        "harness",
+        "ci-cd"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:harness/install-hooks.mjs",
+      "type": "file",
+      "name": "install-hooks.mjs",
+      "filePath": "harness/install-hooks.mjs",
+      "summary": "安装脚本，将git指向项目的.githooks目录（git config core.hooksPath .githooks）；在git init之前运行也安全，并由npm prepare生命周期调用。",
+      "tags": [
+        "harness",
+        "setup",
+        "git-hook",
+        "build-system"
+      ],
+      "complexity": "simple",
+      "languageNotes": "保持非致命（始终以0退出），因此绝不会中断npm install。"
+    },
+    {
+      "id": "function:harness/install-hooks.mjs:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "harness/install-hooks.mjs",
+      "lineRange": [
+        29,
+        57
+      ],
+      "summary": "检测仓库是否为git仓库，若是则将core.hooksPath设为.githooks，并妥善处理无git和失败的情况而不报错。",
+      "tags": [
+        "entry-point",
+        "setup",
+        "git-hook"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:harness/judges/design_judge.py",
+      "type": "file",
+      "name": "design_judge.py",
+      "filePath": "harness/judges/design_judge.py",
+      "summary": "Python design判官，对CSS/HTML/设计文档实现花叔风格的五维评判（token、间距网格、排版、配色、层级），为文件评分并输出findings/JSON，带可配置的通过阈值。",
+      "tags": [
+        "harness",
+        "judge",
+        "design-system",
+        "validation",
+        "scoring",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "正则密集的启发式linter，带自测模式和argparse CLI；被harness/gate.mjs调用，并以阈值参数传入。"
+    },
+    {
+      "id": "function:harness/judges/design_judge.py:assess_file",
+      "type": "function",
+      "name": "assess_file",
+      "filePath": "harness/judges/design_judge.py",
+      "lineRange": [
+        173,
+        456
+      ],
+      "summary": "核心的逐文件设计评估：通过正则启发式评估token使用、8pt网格遵循、字号梯度、配色、渐变和层级，产出各维度分数和findings。",
+      "tags": [
+        "validation",
+        "design-system",
+        "scoring",
+        "heuristics"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:harness/judges/design_judge.py:judge_path",
+      "type": "function",
+      "name": "judge_path",
+      "filePath": "harness/judges/design_judge.py",
+      "lineRange": [
+        479,
+        525
+      ],
+      "summary": "收集某路径下与设计相关的文件，对每个文件运行assess_file，汇总总分和等级，并依据阈值判定通过/失败。",
+      "tags": [
+        "validation",
+        "aggregation",
+        "scoring"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:harness/judges/design_judge.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "harness/judges/design_judge.py",
+      "lineRange": [
+        617,
+        645
+      ],
+      "summary": "CLI入口，解析参数、运行自测或评判给定路径，并打印报告或JSON，退出码反映通过/失败。",
+      "tags": [
+        "entry-point",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:harness/judges/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "harness/judges/README.md",
+      "summary": "记录保障体系的各judge（structure、design、wording）——它们的用途、评分维度、阈值、CLI用法，以及提交gate如何调用它们。",
+      "tags": [
+        "documentation",
+        "harness",
+        "judge"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:harness/judges/structure_judge.py",
+      "type": "file",
+      "name": "structure_judge.py",
+      "filePath": "harness/judges/structure_judge.py",
+      "summary": "Python structure判官，依据机器可读的结构契约（harness/structure/app-structure.json和docs/APP-STRUCTURE.md）检查应用代码库，验证清单页面、页面源码、角色访问和审核引用。",
+      "tags": [
+        "harness",
+        "judge",
+        "validation",
+        "conformance",
+        "structure",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "解析带注释的JSON契约，从仓库中解析清单/页面源码，并带自测模式和argparse CLI运行。"
+    },
+    {
+      "id": "function:harness/judges/structure_judge.py:judge",
+      "type": "function",
+      "name": "judge",
+      "filePath": "harness/judges/structure_judge.py",
+      "lineRange": [
+        239,
+        370
+      ],
+      "summary": "顶层一致性检查：加载结构契约、定位应用清单和页面源码，并就缺失/不匹配的屏幕和审核缺口汇总findings。",
+      "tags": [
+        "validation",
+        "conformance",
+        "structure"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:harness/judges/structure_judge.py:strip_json_comments",
+      "type": "function",
+      "name": "strip_json_comments",
+      "filePath": "harness/judges/structure_judge.py",
+      "lineRange": [
+        95,
+        132
+      ],
+      "summary": "从JSON文本中剥离//和/* */注释，同时保留字符串字面量，使带注释的契约文件可被解析。",
+      "tags": [
+        "utility",
+        "serialization",
+        "parsing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:harness/judges/structure_judge.py:collect_manifest_pages",
+      "type": "function",
+      "name": "collect_manifest_pages",
+      "filePath": "harness/judges/structure_judge.py",
+      "lineRange": [
+        149,
+        188
+      ],
+      "summary": "从应用清单结构中提取声明的页面列表，用于与结构契约比对。",
+      "tags": [
+        "utility",
+        "structure",
+        "parsing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:harness/judges/structure_judge.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "harness/judges/structure_judge.py",
+      "lineRange": [
+        591,
+        620
+      ],
+      "summary": "CLI入口，解析参数、运行自测或对仓库根目录运行structure判官，并打印报告或JSON，带通过/失败退出码。",
+      "tags": [
+        "entry-point",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:harness/judges/wording_judge.py",
+      "type": "file",
+      "name": "wording_judge.py",
+      "filePath": "harness/judges/wording_judge.py",
+      "summary": "Python wording判官，评判文档文案和EN/简中双语一致性——术语遵循、断句、CJK检测和标题结构——并依据可配置阈值为文件评分。",
+      "tags": [
+        "harness",
+        "judge",
+        "validation",
+        "bilingual",
+        "scoring",
+        "tested"
+      ],
+      "complexity": "complex",
+      "languageNotes": "加载术语表，分别拆分英文和中文句子，并检测CJK行；与其他judge一样带自测和argparse CLI运行。"
+    },
+    {
+      "id": "function:harness/judges/wording_judge.py:assess_file",
+      "type": "function",
+      "name": "assess_file",
+      "filePath": "harness/judges/wording_judge.py",
+      "lineRange": [
+        221,
+        437
+      ],
+      "summary": "核心的逐文件用词评估，评判术语合规、双语一致性、句长和标题结构，产出各维度分数和findings。",
+      "tags": [
+        "validation",
+        "bilingual",
+        "scoring",
+        "heuristics"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:harness/judges/wording_judge.py:judge_path",
+      "type": "function",
+      "name": "judge_path",
+      "filePath": "harness/judges/wording_judge.py",
+      "lineRange": [
+        460,
+        506
+      ],
+      "summary": "收集某路径下的文档文件，使用已加载的术语表逐个评估，汇总总分/等级，并依据阈值判定通过/失败。",
+      "tags": [
+        "validation",
+        "aggregation",
+        "scoring"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:harness/judges/wording_judge.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "harness/judges/wording_judge.py",
+      "lineRange": [
+        617,
+        646
+      ],
+      "summary": "CLI入口，解析参数、运行自测或评判某路径，并打印报告或JSON，带通过/失败退出码。",
+      "tags": [
+        "entry-point",
+        "cli"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:harness/lib/reminders.mjs",
+      "type": "file",
+      "name": "reminders.mjs",
+      "filePath": "harness/lib/reminders.mjs",
+      "summary": "gate的指引提醒（handoff、understand-map、临时清理）所用的纯粹、可单元测试的决策逻辑，给定仓库根目录、暂存文件和保障配置，返回每条提醒的fire/level/message。",
+      "tags": [
+        "harness",
+        "utility",
+        "validation",
+        "tested"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "除针对rootDir的fs.existsSync外无副作用，因此测试可将rootDir指向临时目录。"
+    },
+    {
+      "id": "function:harness/lib/reminders.mjs:computeReminders",
+      "type": "function",
+      "name": "computeReminders",
+      "filePath": "harness/lib/reminders.mjs",
+      "lineRange": [
+        27,
+        69
+      ],
+      "summary": "基于暂存文件、文件是否存在和保障配置，计算handoff、understand-map和临时清理提醒是否应触发以及触发级别。",
+      "tags": [
+        "utility",
+        "validation",
+        "exported"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:harness/structure/app-structure.json",
+      "type": "config",
+      "name": "app-structure.json",
+      "filePath": "harness/structure/app-structure.json",
+      "summary": "机器可读的结构契约，镜像平台的8张Mermaid流程图（屏幕、界面、角色及按角色的模块访问），结构判官以其为依据检查应用代码库。",
+      "tags": [
+        "configuration",
+        "structure",
+        "contract",
+        "harness"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Screen id与Mermaid节点id 1:1对应；与docs/APP-STRUCTURE.md保持同步。"
+    },
+    {
+      "id": "config:harness/structure/route-map.json",
+      "type": "config",
+      "name": "route-map.json",
+      "filePath": "harness/structure/route-map.json",
+      "summary": "小型路由映射文件，与结构契约配合使用，将屏幕关联到可导航的路由，用于结构一致性检查。",
+      "tags": [
+        "configuration",
+        "structure",
+        "routing",
+        "harness"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:tests/e2e/chrome-devtools.spec.md",
+      "type": "document",
+      "name": "chrome-devtools.spec.md",
+      "filePath": "tests/e2e/chrome-devtools.spec.md",
+      "summary": "端到端测试规约，描述由Chrome DevTools MCP驱动的场景，用于验证docs着陆页和未来的应用流程。",
+      "tags": [
+        "documentation",
+        "test",
+        "e2e",
+        "specification"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:tests/package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "tests/package.json",
+      "summary": "tests目录的极简包清单，其`\"main\": \"index.mjs\"`充当目录导入的垫片，使`node --test tests/`在Node>=23上解析到聚合入口。",
+      "tags": [
+        "configuration",
+        "test",
+        "build-system",
+        "node"
+      ],
+      "complexity": "simple",
+      "languageNotes": "其存在仅为规避Node 23的ERR_UNSUPPORTED_DIR_IMPORT行为；`\"type\": \"module\"`在测试套件中启用ESM。"
+    },
+    {
+      "id": "document:tests/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "tests/README.md",
+      "summary": "化龙幼儿园电子资源平台零依赖、Windows安全的自动化测试套件的双语指南，说明如何运行测试、目录布局、每项测试守护什么、fixture、浏览器e2e测试手册，以及可复用的静态code-review检查。",
+      "tags": [
+        "documentation",
+        "test",
+        "ci-cd",
+        "overview"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "记录Node内置测试运行器的用法，以及当PATH上没有解释器时会优雅跳过的Python design/wording判官。"
+    },
+    {
+      "id": "document:化龙电子资源平台_交互跳转逻辑_Mermaid流程图.docx",
+      "type": "document",
+      "name": "化龙电子资源平台_交互跳转逻辑_Mermaid流程图.docx",
+      "filePath": "化龙电子资源平台_交互跳转逻辑_Mermaid流程图.docx",
+      "summary": "Word文档，承载八个Mermaid流程图源码块，规定微信小程序在平台核心模块（首页、党建管理、协同、培训、资源库/案例库、家园社共育、家长端和PC后台）间的交互与导航逻辑。",
+      "tags": [
+        "documentation",
+        "specification",
+        "flowchart",
+        "navigation",
+        "miniprogram"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "被扫描器误标为code，实为二进制.docx；内容是定义按角色客户端（管理端/教师端/家长端）屏幕间跳转逻辑的Mermaid `flowchart LR`源码。"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:tests/index.mjs",
+      "target": "file:tests/e2e/docs-site.e2e.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/index.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/index.mjs",
+      "target": "file:tests/unit/glossary-data.test.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/index.mjs",
+      "target": "file:tests/unit/harness.test.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/index.mjs",
+      "target": "file:tests/unit/judges.test.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/unit/harness.test.mjs",
+      "target": "function:tests/unit/harness.test.mjs:runNode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/glossary-check.mjs",
+      "target": "file:tests/unit/harness.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/typewriter.mjs",
+      "target": "file:tests/unit/harness.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/judges/design_judge.py",
+      "target": "file:tests/unit/judges.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/judges/wording_judge.py",
+      "target": "file:tests/unit/judges.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/glossary-check.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/typewriter.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/parity-check.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/judges/design_judge.py",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/judges/wording_judge.py",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/judges/structure_judge.py",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:.claude/hooks/pre-edit-guard.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:.claude/hooks/post-edit-check.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/lib/reminders.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/clean-temp.mjs",
+      "target": "file:tests/integration/harness-line.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:harness/clean-temp.mjs",
+      "target": "file:harness/lib/util.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:harness/glossary-check.mjs",
+      "target": "file:harness/lib/util.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:harness/parity-check.mjs",
+      "target": "file:harness/lib/util.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:harness/typewriter.mjs",
+      "target": "file:harness/lib/util.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:walk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:read",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:proseLines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:parseArgs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:loadGlossary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:sevTag",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:walk",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:read",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:proseLines",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:parseArgs",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:loadGlossary",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/lib/util.mjs",
+      "target": "function:harness/lib/util.mjs:sevTag",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/parity-check.mjs",
+      "target": "function:harness/parity-check.mjs:headingProfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/typewriter.mjs",
+      "target": "function:harness/typewriter.mjs:generate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/typewriter.mjs",
+      "target": "function:harness/typewriter.mjs:lint",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/typewriter.mjs",
+      "target": "function:harness/typewriter.mjs:fixCjkPunct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:harness/typewriter.mjs:fixCjkPunct",
+      "target": "file:harness/lib/util.mjs",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:harness/typewriter.mjs:lint",
+      "target": "function:harness/lib/util.mjs:walk",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:harness/typewriter.mjs:lint",
+      "target": "function:harness/lib/util.mjs:read",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:harness/typewriter.mjs:lint",
+      "target": "function:harness/lib/util.mjs:proseLines",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:harness/typewriter.mjs:lint",
+      "target": "function:harness/lib/util.mjs:sevTag",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:harness/parity-check.mjs:headingProfile",
+      "target": "function:harness/lib/util.mjs:read",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:harness/lib/util.mjs:loadGlossary",
+      "target": "function:harness/lib/util.mjs:read",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "pipeline:.github/workflows/ci.yml",
+      "target": "step:.github/workflows/ci.yml:gate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "pipeline:.github/workflows/ci.yml",
+      "target": "file:harness/gate.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:.github/workflows/pages.yml",
+      "target": "step:.github/workflows/pages.yml:build",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "pipeline:.github/workflows/pages.yml",
+      "target": "step:.github/workflows/pages.yml:deploy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "step:.github/workflows/pages.yml:deploy",
+      "target": "step:.github/workflows/pages.yml:build",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "pipeline:.github/workflows/pages.yml",
+      "target": "file:docs/index.html",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "document:.claude/agents/content-council.md",
+      "target": "document:.claude/agents/wording-judge.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/agents/design-council.md",
+      "target": "document:.claude/agents/design-judge.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CLAUDE.md",
+      "target": "document:AGENTS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:CONTEXT.md",
+      "target": "document:AGENTS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.zh-CN.md",
+      "target": "document:README.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "document:README.zh-CN.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "document:AGENTS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "config:package.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:AGENTS.md",
+      "target": "config:package.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:AGENTS.md",
+      "target": "document:CONTEXT.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:AGENTS.md",
+      "target": "document:HANDOFF.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:HANDOFF.md",
+      "target": "document:AGENTS.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:Platform Flow.txt",
+      "target": "document:CONTEXT.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:docs/index.html",
+      "target": "document:docs/PRD.md",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:docs/index.html",
+      "target": "document:docs/PRD.zh-CN.md",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:docs/index.html",
+      "target": "document:docs/DESIGN.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:docs/index.html",
+      "target": "config:docs/glossary.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/PRD.md",
+      "target": "document:docs/PRD.zh-CN.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/PRD.md",
+      "target": "document:docs/GRILLING.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/PRD.zh-CN.md",
+      "target": "document:docs/PRD.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/PRD.zh-CN.md",
+      "target": "document:docs/GRILLING.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:docs/glossary.json",
+      "target": "document:docs/PRD.md",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:docs/glossary.json",
+      "target": "document:docs/PRD.zh-CN.md",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:docs/glossary.json",
+      "target": "document:docs/APP-STRUCTURE.md",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:docs/DESIGN.md",
+      "target": "file:docs/index.html",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/APP-STRUCTURE.md",
+      "target": "document:docs/PRD.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/adr/0002-co-education-naming.md",
+      "target": "config:docs/glossary.json",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/adr/0003-client-framework.md",
+      "target": "document:docs/research/wechat-miniprogram.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/adr/0003-client-framework.md",
+      "target": "document:docs/adr/0005-mandatory-content-moderation.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/adr/0004-backend-cloudbase-vs-alibaba.md",
+      "target": "document:docs/adr/0005-mandatory-content-moderation.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/adr/0005-mandatory-content-moderation.md",
+      "target": "file:harness/code-review.mjs",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/adr/0006-harness-language.md",
+      "target": "file:harness/gate.mjs",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/adr/0006-harness-language.md",
+      "target": "file:harness/code-review.mjs",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:.claude/hooks/post-edit-check.mjs",
+      "target": "function:.claude/hooks/post-edit-check.mjs:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:.claude/hooks/post-edit-check.mjs",
+      "target": "function:.claude/hooks/post-edit-check.mjs:runChecker",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:.claude/hooks/post-edit-check.mjs",
+      "target": "function:.claude/hooks/post-edit-check.mjs:readStdin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:.claude/hooks/pre-edit-guard.mjs",
+      "target": "function:.claude/hooks/pre-edit-guard.mjs:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:.claude/hooks/pre-edit-guard.mjs",
+      "target": "function:.claude/hooks/pre-edit-guard.mjs:readStdin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "config:.claude/settings.json",
+      "target": "file:.claude/hooks/pre-edit-guard.mjs",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:.claude/settings.json",
+      "target": "file:.claude/hooks/post-edit-check.mjs",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:.claude/hooks/README.md",
+      "target": "file:.claude/hooks/pre-edit-guard.mjs",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:.claude/hooks/README.md",
+      "target": "file:.claude/hooks/post-edit-check.mjs",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:.githooks/pre-commit",
+      "target": "file:harness/gate.mjs",
+      "type": "triggers",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/install-hooks.mjs",
+      "target": "function:harness/install-hooks.mjs:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/install-hooks.mjs",
+      "target": "file:.githooks/pre-commit",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/install-hooks.mjs",
+      "target": "file:.githooks/commit-msg",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/code-review.mjs",
+      "target": "function:harness/code-review.mjs:walk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "file:harness/lib/reminders.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "file:harness/lib/util.mjs",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "function:harness/lib/reminders.mjs:computeReminders",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "config:harness/harness.config.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "file:harness/judges/structure_judge.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "file:harness/judges/design_judge.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/gate.mjs",
+      "target": "file:harness/judges/wording_judge.py",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/lib/reminders.mjs",
+      "target": "function:harness/lib/reminders.mjs:computeReminders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/lib/reminders.mjs",
+      "target": "function:harness/lib/reminders.mjs:computeReminders",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:harness/judges/design_judge.py",
+      "target": "function:harness/judges/design_judge.py:assess_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/design_judge.py",
+      "target": "function:harness/judges/design_judge.py:judge_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/design_judge.py",
+      "target": "function:harness/judges/design_judge.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/structure_judge.py",
+      "target": "function:harness/judges/structure_judge.py:judge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/structure_judge.py",
+      "target": "function:harness/judges/structure_judge.py:strip_json_comments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/structure_judge.py",
+      "target": "function:harness/judges/structure_judge.py:collect_manifest_pages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/structure_judge.py",
+      "target": "function:harness/judges/structure_judge.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/structure_judge.py",
+      "target": "config:harness/structure/app-structure.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/judges/structure_judge.py",
+      "target": "config:harness/structure/route-map.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:harness/judges/wording_judge.py",
+      "target": "function:harness/judges/wording_judge.py:assess_file",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/wording_judge.py",
+      "target": "function:harness/judges/wording_judge.py:judge_path",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:harness/judges/wording_judge.py",
+      "target": "function:harness/judges/wording_judge.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "config:harness/structure/app-structure.json",
+      "target": "config:harness/structure/route-map.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:docs/research/wechat-dev-plan.md",
+      "target": "document:docs/research/wechat-miniprogram.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "config:tests/package.json",
+      "target": "document:tests/README.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:specification",
+      "name": "规约与决策",
+      "description": "该幼儿园平台的产品、结构与设计契约：双语PRD、设计系统、应用结构规约、各ADR、微信research，以及所有其他层都据以强制执行的规范术语表。",
+      "nodeIds": [
+        "document:docs/APP-STRUCTURE.md",
+        "document:docs/DESIGN.md",
+        "document:docs/GRILLING.md",
+        "document:docs/PRD.md",
+        "document:docs/PRD.zh-CN.md",
+        "config:docs/glossary.json",
+        "document:CONTEXT.md",
+        "document:Platform Flow.txt",
+        "document:化龙电子资源平台_交互跳转逻辑_Mermaid流程图.docx",
+        "document:docs/adr/0001-repository-as-spec-and-harness-foundation.md",
+        "document:docs/adr/0002-co-education-naming.md",
+        "document:docs/adr/0003-client-framework.md",
+        "document:docs/adr/0004-backend-cloudbase-vs-alibaba.md",
+        "document:docs/adr/0005-mandatory-content-moderation.md",
+        "document:docs/adr/0006-harness-language.md",
+        "document:docs/research/wechat-dev-plan.md",
+        "document:docs/research/wechat-miniprogram.md"
+      ]
+    },
+    {
+      "id": "layer:quality-harness",
+      "name": "质量保障体系",
+      "description": "可执行的强制执行引擎：Node gate运行器，glossary/typewriter/parity各linter，Python的design/wording/structure判官，共享库，以及据规约检查文档和未来代码的机器可读结构契约。",
+      "nodeIds": [
+        "file:harness/clean-temp.mjs",
+        "file:harness/glossary-check.mjs",
+        "file:harness/lib/util.mjs",
+        "file:harness/parity-check.mjs",
+        "file:harness/typewriter.mjs",
+        "file:harness/code-review.mjs",
+        "file:harness/gate.mjs",
+        "config:harness/harness.config.json",
+        "file:harness/install-hooks.mjs",
+        "file:harness/judges/design_judge.py",
+        "file:harness/judges/README.md",
+        "file:harness/judges/structure_judge.py",
+        "file:harness/judges/wording_judge.py",
+        "file:harness/lib/reminders.mjs",
+        "config:harness/structure/app-structure.json",
+        "config:harness/structure/route-map.json"
+      ]
+    },
+    {
+      "id": "layer:review-agents",
+      "name": "评审子代理与Hook",
+      "description": "Claude Code自动化：评审子代理定义（合规、内容/设计委员会、各判官、清理工）、编辑器的编辑前/后守卫hook，以及将这些hook接入编辑工作流的设置。",
+      "nodeIds": [
+        "document:.claude/agents/compliance-sentinel.md",
+        "document:.claude/agents/content-council.md",
+        "document:.claude/agents/design-council.md",
+        "document:.claude/agents/design-judge.md",
+        "document:.claude/agents/structure-judge.md",
+        "document:.claude/agents/temp-janitor.md",
+        "document:.claude/agents/wording-judge.md",
+        "file:.claude/hooks/post-edit-check.mjs",
+        "file:.claude/hooks/pre-edit-guard.mjs",
+        "document:.claude/hooks/README.md",
+        "config:.claude/settings.json"
+      ]
+    },
+    {
+      "id": "layer:tests",
+      "name": "测试与Fixture",
+      "description": "零依赖的自动化测试套件（单元、集成、e2e），以黑盒方式spawn保障体系工具和judge，外加用于演练各linter的正/反例Markdown和HTML fixture。",
+      "nodeIds": [
+        "file:tests/e2e/docs-site.e2e.mjs",
+        "file:tests/index.mjs",
+        "file:tests/integration/harness-line.test.mjs",
+        "file:tests/unit/glossary-data.test.mjs",
+        "file:tests/unit/harness.test.mjs",
+        "file:tests/unit/judges.test.mjs",
+        "document:tests/fixtures/clean.md",
+        "document:tests/fixtures/glossary-bad.md",
+        "document:tests/fixtures/glossary-canonical-mask.md",
+        "file:tests/fixtures/sample.html",
+        "document:tests/fixtures/typewriter-bad.md",
+        "document:tests/fixtures/typewriter-clean.md",
+        "document:tests/fixtures/wording-sample.md",
+        "document:tests/e2e/chrome-devtools.spec.md",
+        "config:tests/package.json",
+        "document:tests/README.md"
+      ]
+    },
+    {
+      "id": "layer:ci-publishing",
+      "name": "CI与发布",
+      "description": "构建与发布的管道：用于质量gate和Pages部署的GitHub Actions工作流、用于commit-msg和pre-commit gating的git hook、PR模板，以及被发布的静态docs着陆站点（HTML、样式表、Jekyll标记）。",
+      "nodeIds": [
+        "pipeline:.github/workflows/ci.yml",
+        "pipeline:.github/workflows/pages.yml",
+        "document:.github/PULL_REQUEST_TEMPLATE.md",
+        "file:.githooks/commit-msg",
+        "file:.githooks/pre-commit",
+        "file:docs/index.html",
+        "file:docs/assets/styles.css",
+        "file:.nojekyll",
+        "file:docs/.nojekyll"
+      ]
+    },
+    {
+      "id": "layer:project-meta",
+      "name": "项目元信息与治理",
+      "description": "根级别的贡献者与代理契约以及项目配置：规范的AGENTS/CLAUDE工作约定、README对、会话交接、定义保障体系命令面的npm清单，以及git属性。",
+      "nodeIds": [
+        "document:AGENTS.md",
+        "document:CLAUDE.md",
+        "document:HANDOFF.md",
+        "document:README.md",
+        "document:README.zh-CN.md",
+        "config:package.json",
+        "config:.gitattributes"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "项目概览",
+      "description": "从README开始，了解这个仓库究竟是什么：它不是应用代码，而是管控化龙镇中心幼儿园电子资源平台（一个微信小程序加PC后台）的规约、设计系统、术语契约和质量保障体系。它阐释规约先行的缘由、一张内容表、五步质量gate和强制合规，为后续的一切提供地图。其中文孪生版README.zh-CN.md由保障体系的parity检查保持同步，因此这两个文件是单一的双语制品。",
+      "nodeIds": [
+        "document:README.md",
+        "document:README.zh-CN.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "贡献者契约",
+      "description": "AGENTS.md是每一位人类和AI贡献者都必须遵守的、工具无关的规范契约：黄金法则、保障体系命令参考、hook分层、评审子代理、gate提醒、提交约定和仓库地图。CLAUDE.md通过原生的@AGENTS.md导入叠加其上，告诉Claude Code如何在仓库中工作、应委派给哪些子代理，以及上线的硬性要求。现在读这两份文档，会在你触碰任何文件之前告知你行事规则——而AGENTS.md因大量内容都以它为准，是图中扇入度最高的节点之一。",
+      "nodeIds": [
+        "document:AGENTS.md",
+        "document:CLAUDE.md"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "在构建什么（PRD）",
+      "description": "产品需求文档是“平台做什么”的契约：问题陈述、目标、角色、八个模块规约、合规要求、数据模型和里程碑。它是仓库中扇入度最高的规约文档，也是最大的紧耦合簇（PRD、其中文孪生、术语表、GRILLING和docs站点）的锚点。英文主版PRD.md和简体中文PRD.zh-CN.md必须保持章节对齐，由你稍后会遇到的双语parity检查强制执行。",
+      "nodeIds": [
+        "document:docs/PRD.md",
+        "document:docs/PRD.zh-CN.md"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "约定的结构",
+      "description": "在PRD的八个模块之上，本步覆盖应用如何组织结构。Platform Flow.txt承载每条导航和交互路径的源Mermaid流程图；docs/APP-STRUCTURE.md以双语散文与之1:1镜像；harness/structure/app-structure.json加上route-map.json则是由它们推导出的机器可读契约。结构判官稍后会以这些JSON文件检查未来的应用代码，因此这三者正是人类可读的流程变为可强制执行的不变量之处。",
+      "nodeIds": [
+        "document:Platform Flow.txt",
+        "document:docs/APP-STRUCTURE.md",
+        "config:harness/structure/app-structure.json",
+        "config:harness/structure/route-map.json"
+      ]
+    },
+    {
+      "order": 5,
+      "title": "术语契约",
+      "description": "术语被当作头等的、由机器检查的契约。docs/glossary.json是唯一真相来源——逐术语的中/英用词、定义、被禁用变体和标点规则——而CONTEXT.md是只承载术语、不含规约或决策的人类可读镜像。术语检查器和wording判官都读取它们以使每份文档保持一致，这也是为何术语表位居规约簇的中心，并被配置为驱动PRD和APP-STRUCTURE文档。",
+      "nodeIds": [
+        "config:docs/glossary.json",
+        "document:CONTEXT.md"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "设计系统",
+      "description": "DESIGN.md是设计系统规约：面向机器的设计token、配色、排版、组件样式、布局、动效和无障碍规则，专为幼儿园受众和CJK排版调校。它是已发布docs站点所复用token的权威来源，design判官也以同一套token、8pt网格和层级规则审计CSS与HTML。了解这里的token能解释你将在CI与发布步骤中看到的着陆页外观。",
+      "nodeIds": [
+        "document:docs/DESIGN.md"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "质量Gate引擎",
+      "description": "harness/gate.mjs是主质量gate——整个仓库围绕其运转的编排器。它按harness.config.json声明的级别运行术语、typewriter、parity和三个判官，触发handoff和清理提醒，并在任何拦截性失败时以非零退出来拦截提交。harness/lib/util.mjs是共享、零依赖的工具箱（文件遍历、散文/代码拆分、术语表加载、严重级别标签），因几乎每个保障体系工具都导入它，是图中扇入和扇出度最高的节点。",
+      "nodeIds": [
+        "file:harness/gate.mjs",
+        "config:harness/harness.config.json",
+        "file:harness/lib/util.mjs"
+      ],
+      "languageLesson": "这些是纯Node ESM模块（仓库为type: module）。gate用Node编写，但通过spawnSync调用Python判官——这是ADR-0006记录的、刻意的“Node编排Python”分工。"
+    },
+    {
+      "order": 8,
+      "title": "Linter：术语、文风、Parity",
+      "description": "三个Node linter强制执行gate所汇总的用词与双语纪律。glossary-check.mjs标记被禁用的非规范中文变体，同时对规范术语掩码以避免误报；typewriter.mjs既脚手架生成双语文档模板，又lint统一文风（全角CJK标点、空白、标题层级），并支持可选的--fix；parity-check.mjs强制EN与简中孪生之间的标题结构匹配，并捕获其孪生未在同一次提交中一并更新的那一半。三者合力，使第3-5步的双语、术语驱动规则变得可执行。",
+      "nodeIds": [
+        "file:harness/glossary-check.mjs",
+        "file:harness/typewriter.mjs",
+        "file:harness/parity-check.mjs"
+      ],
+      "languageLesson": "CJK标点规则：typewriter识别以汉字为主的行，将紧邻CJK字符的ASCII标点转换为全角等价物，同时刻意豁免小数（1.5）、URL和代码片段。"
+    },
+    {
+      "order": 9,
+      "title": "判官：结构、设计、用词",
+      "description": "三个Python判官是Node gate所调用的确定性评分器。structure_judge.py依据第4步的app-structure.json契约检查应用代码库（页面、角色访问、审核引用）；design_judge.py对CSS/HTML/设计文档依据第6步的DESIGN.md token进行五维评判；wording_judge.py依据第5步的术语表为文档文案和EN/简中一致性评分。harness/judges/README.md记录它们的维度、阈值和CLI用法。",
+      "nodeIds": [
+        "file:harness/judges/structure_judge.py",
+        "file:harness/judges/design_judge.py",
+        "file:harness/judges/wording_judge.py",
+        "file:harness/judges/README.md"
+      ],
+      "languageLesson": "每个判官都是仅用标准库的Python，带argparse CLI和内置的自测模式，并通过自定义的注释剥离器解析带注释的JSON契约——如此选择是为了让gate只需PATH上有python即可调用，无需pip install。"
+    },
+    {
+      "order": 10,
+      "title": "评审子代理与编辑器Hook",
+      "description": "这一层是环绕保障体系的Claude Code自动化。子代理定义把确定性检查变成评审者：compliance-sentinel依据微信和中国监管规则审计，内容与设计委员会进行多原型研讨，wording、design和structure判官给出单一的带评分裁定，temp-janitor负责安全清理。编辑前守卫拦截对受保护路径（含被锁定的术语表）的编辑，编辑后检查在一次Markdown编辑后重跑各linter，settings.json则把两个hook接入编辑工作流。",
+      "nodeIds": [
+        "document:.claude/agents/compliance-sentinel.md",
+        "document:.claude/agents/structure-judge.md",
+        "file:.claude/hooks/pre-edit-guard.mjs",
+        "file:.claude/hooks/post-edit-check.mjs",
+        "config:.claude/settings.json"
+      ],
+      "languageLesson": "Claude Code的hook通过退出码契约通信：退出0放行待执行的工具动作，退出2拦截它。这些hook带超时保护地从stdin读取tool-use载荷，使其绝不会卡住编辑器。"
+    },
+    {
+      "order": 11,
+      "title": "测试与Fixture",
+      "description": "零依赖的测试套件是保障体系自证的方式。tests/index.mjs是聚合器，导入每个套件以便单次node --test运行将它们全部注册；单元测试检查术语数据和Node CLI；judges.test.mjs以子进程方式运行Python判官；集成测试（整张图中扇入度最高的节点）则端到端地以黑盒方式spawn每个保障体系工具和hook。各fixture将一个已知干净的文档与刻意做坏的文档配对，使每个linter的通过和失败路径都被演练到。",
+      "nodeIds": [
+        "file:tests/index.mjs",
+        "file:tests/integration/harness-line.test.mjs",
+        "file:tests/unit/glossary-data.test.mjs",
+        "document:tests/fixtures/clean.md",
+        "document:tests/fixtures/glossary-bad.md"
+      ]
+    },
+    {
+      "order": 12,
+      "title": "CI、Git Hook与发布",
+      "description": "一切在此汇聚。pre-commit git hook在本地运行harness/gate.mjs，commit-msg强制Conventional Commits，ci.yml在每次push和pull request上以同一个gate作为必需的状态检查再跑一遍。另外，pages.yml构建并部署静态docs着陆页（docs/index.html，由DESIGN.md的token设定样式）到GitHub Pages。这是收官之笔：第7步的同一个gate守护着开发者的机器、CI服务器和已发布的制品，闭合了规约先行契约的环路。",
+      "nodeIds": [
+        "pipeline:.github/workflows/ci.yml",
+        "pipeline:.github/workflows/pages.yml",
+        "file:.githooks/pre-commit",
+        "file:.githooks/commit-msg",
+        "file:docs/index.html"
+      ],
+      "languageLesson": "GitHub Actions YAML：CI工作流使用带cancel-in-progress的concurrency分组以中止被取代的运行，而pages.yml拆分为先build后deploy的作业（由needs衔接），在最小权限的pages: write / id-token: write下运行。"
+    },
+    {
+      "order": 13,
+      "title": "架构决策与Research",
+      "description": "以契约背后的“为什么”收束本次导览。ADR-0001确立本仓库是规约与保障体系的基础而非应用本身；ADR-0005强制要求结构判官和合规哨兵所执行的、不可绕过的内容审核gate；ADR-0006记录了你在第7-9步看到的“Node gate调用Python判官”分工。微信小程序的research笔记和GRILLING.md（计划压力测试日志）记录了喂给提议中框架与后端ADR的平台调研和开放问题，因此你离开时不仅了解仓库如何运作，还了解仍在推进中的推理。",
+      "nodeIds": [
+        "document:docs/adr/0001-repository-as-spec-and-harness-foundation.md",
+        "document:docs/adr/0005-mandatory-content-moderation.md",
+        "document:docs/adr/0006-harness-language.md",
+        "document:docs/research/wechat-miniprogram.md",
+        "document:docs/GRILLING.md"
+      ]
+    }
+  ]
+}

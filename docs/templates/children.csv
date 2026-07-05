@@ -1,0 +1,2 @@
+child_external_id,name,gender,birth_date,class_name,guardian_phone,enroll_date,status,consent_signed
+C-EXAMPLE-001,示例幼儿 (Example Child),female,2021-05-12,大一班,13800000000,2024-09-01,active,Y

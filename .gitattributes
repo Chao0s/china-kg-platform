@@ -1,0 +1,16 @@
+# Normalize line endings to LF in the repository for cross-platform consistency.
+* text=auto eol=lf
+
+# Shell hooks must stay LF (they run under sh, including on Windows git).
+*.sh text eol=lf
+.githooks/* text eol=lf
+
+# Treat these as binary (no diff/eol munging).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

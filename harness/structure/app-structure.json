@@ -1,0 +1,762 @@
+{
+  "version": "1.0.0",
+  "source": "Platform Flow.txt — 8 Mermaid flowcharts. Human-readable 1:1 mirror + contract: docs/APP-STRUCTURE.md.",
+  "updated": "2026-06-18",
+  "note": "Machine-readable structural contract. The structure judge (harness/judges/structure_judge.py) checks the application codebase against this. Screen ids mirror the Mermaid node ids 1:1 so conformance is traceable to the source flows. When the agreed structure changes, update docs/APP-STRUCTURE.md AND this file together. Screen ids mirror the Mermaid node ids 1:1, EXCEPT where a source id collides across charts (PC后台 AuditManage/TaskManage disambiguate chart-05 Audit / chart-08 Task) — those carry a sourceNodeId field.",
+  "roles": [
+    "admin",
+    "teacher",
+    "parent"
+  ],
+  "surfaces": {
+    "miniprogram": {
+      "zh": "微信小程序",
+      "roles": [
+        "admin",
+        "teacher",
+        "parent"
+      ],
+      "note": "The three role clients live here. Role-specific content is gated server-side."
+    },
+    "pc-backend": {
+      "zh": "PC后台 / CMS",
+      "roles": [
+        "admin"
+      ],
+      "forbiddenRoles": [
+        "teacher",
+        "parent"
+      ],
+      "note": "Content management system. Admin only. Teachers and parents have NO CMS access in the current scope."
+    }
+  },
+  "roleAccess": {
+    "parent": {
+      "allowedModules": [
+        "co-education",
+        "home"
+      ],
+      "forbiddenModules": [
+        "party-building",
+        "admin-coordination",
+        "teaching-research",
+        "resource-library",
+        "case-library",
+        "pc-backend"
+      ],
+      "note": "Parent client surfaces ONLY home-school-community co-education content plus its own notices/tasks; never staff modules."
+    },
+    "teacher": {
+      "allowedModules": [
+        "home",
+        "party-building",
+        "admin-coordination",
+        "teaching-research",
+        "resource-library",
+        "case-library",
+        "co-education"
+      ],
+      "forbiddenModules": [
+        "pc-backend"
+      ],
+      "note": "Teachers use the mobile clients; no CMS/PC backend access."
+    },
+    "admin": {
+      "allowedModules": [
+        "home",
+        "party-building",
+        "admin-coordination",
+        "teaching-research",
+        "resource-library",
+        "case-library",
+        "co-education",
+        "pc-backend"
+      ],
+      "forbiddenModules": [],
+      "note": "Admin has full mobile access AND the PC backend / CMS."
+    }
+  },
+  "modules": [
+    {
+      "id": "home",
+      "zh": "首页",
+      "flowchart": "01"
+    },
+    {
+      "id": "party-building",
+      "zh": "党建管理",
+      "flowchart": "02"
+    },
+    {
+      "id": "admin-coordination",
+      "zh": "综合协调",
+      "flowchart": "03"
+    },
+    {
+      "id": "teaching-research",
+      "zh": "教研培训",
+      "flowchart": "04"
+    },
+    {
+      "id": "resource-library",
+      "zh": "资源库",
+      "flowchart": "05"
+    },
+    {
+      "id": "case-library",
+      "zh": "案例库",
+      "flowchart": "05"
+    },
+    {
+      "id": "co-education",
+      "zh": "家园社共育",
+      "flowchart": "06"
+    },
+    {
+      "id": "parent-client",
+      "zh": "家长端",
+      "flowchart": "07"
+    },
+    {
+      "id": "pc-backend",
+      "zh": "PC后台",
+      "flowchart": "08"
+    }
+  ],
+  "screens": [
+    {
+      "id": "Home",
+      "zh": "首页",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher",
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "AuditList",
+      "zh": "审核列表页",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "AuditDetail",
+      "zh": "审核详情页",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "TaskCreate",
+      "zh": "发布共建任务",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "TaskBoard",
+      "zh": "任务进度看板",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "UploadForm",
+      "zh": "上传表单",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "TaskDetail",
+      "zh": "任务详情页",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "SubmitMaterial",
+      "zh": "提交材料 / 反馈",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "NoticeList",
+      "zh": "通知列表页",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher",
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "NoticeDetail",
+      "zh": "通知详情页",
+      "module": "home",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher",
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "LearnList",
+      "zh": "学习资料列表",
+      "module": "party-building",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "LearnDetail",
+      "zh": "资料详情页",
+      "module": "party-building",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "ActivityList",
+      "zh": "活动列表页",
+      "module": "party-building",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "ActivityDetail",
+      "zh": "活动详情页",
+      "module": "party-building",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "BrandList",
+      "zh": "品牌建设资料列表",
+      "module": "party-building",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "BrandDetail",
+      "zh": "品牌建设详情页",
+      "module": "party-building",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "XZList",
+      "zh": "行政资料列表",
+      "module": "admin-coordination",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "XZDetail",
+      "zh": "行政资料详情",
+      "module": "admin-coordination",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "HQList",
+      "zh": "后勤资料列表",
+      "module": "admin-coordination",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "HQDetail",
+      "zh": "后勤资料详情",
+      "module": "admin-coordination",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "HRList",
+      "zh": "人事资料列表",
+      "module": "admin-coordination",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "HRDetail",
+      "zh": "人事资料详情",
+      "module": "admin-coordination",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "CourseIntroDetail",
+      "zh": "办园理念 / 课程体系详情页",
+      "module": "teaching-research",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "FiveChart",
+      "zh": "评价五维图",
+      "module": "teaching-research",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "Scale",
+      "zh": "填写五大领域量表",
+      "module": "teaching-research",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "Radar",
+      "zh": "生成五维雷达图",
+      "module": "teaching-research",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "TrainList",
+      "zh": "研修列表页",
+      "module": "teaching-research",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "TrainDetail",
+      "zh": "研修详情页",
+      "module": "teaching-research",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "TrainFeedback",
+      "zh": "研修反馈 / 评论",
+      "module": "teaching-research",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "CourseResourceHome",
+      "zh": "课程库 + 资源库首页",
+      "module": "resource-library",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "ResourceList",
+      "zh": "资源列表页",
+      "module": "resource-library",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "ResourceDetail",
+      "zh": "资源详情页",
+      "module": "resource-library",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "CaseList",
+      "zh": "案例列表页",
+      "module": "case-library",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "CaseDetail",
+      "zh": "案例详情页",
+      "module": "case-library",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "TeacherUpload",
+      "zh": "教师上传资源或案例",
+      "module": "case-library",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "GardenPublish",
+      "zh": "在园时光发布页",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "ParentViewMoment",
+      "zh": "在园时光查看",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "TaskPublish",
+      "zh": "教师发布亲子任务",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "ParentUpload",
+      "zh": "家长上传反馈",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "TaskProgress",
+      "zh": "教师查看完成进度",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "GardenProgress",
+      "zh": "在园时光发布进度汇总",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "MonthEval",
+      "zh": "月度评价填写页",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "TermEval",
+      "zh": "学期评价",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "TermReport",
+      "zh": "综合评估报告",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher",
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "BookCreate",
+      "zh": "生成成长册",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "teacher"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "BookPreview",
+      "zh": "成长册预览",
+      "module": "co-education",
+      "surface": "miniprogram",
+      "roles": [
+        "admin",
+        "teacher",
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "ParentHome",
+      "zh": "家长端首页",
+      "module": "parent-client",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "PNoticeList",
+      "zh": "通知列表",
+      "module": "parent-client",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "PTaskList",
+      "zh": "任务列表",
+      "module": "parent-client",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "PSubmit",
+      "zh": "提交反馈",
+      "module": "parent-client",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": true
+    },
+    {
+      "id": "PMomentList",
+      "zh": "孩子相关动态列表",
+      "module": "parent-client",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "PGrowthFile",
+      "zh": "成长档案查看",
+      "module": "parent-client",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "PGrowthBook",
+      "zh": "成长册查看",
+      "module": "parent-client",
+      "surface": "miniprogram",
+      "roles": [
+        "parent"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "User",
+      "zh": "用户管理",
+      "module": "pc-backend",
+      "surface": "pc-backend",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "Content",
+      "zh": "内容管理",
+      "module": "pc-backend",
+      "surface": "pc-backend",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false
+    },
+    {
+      "id": "AuditManage",
+      "zh": "审核管理",
+      "module": "pc-backend",
+      "surface": "pc-backend",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false,
+      "sourceNodeId": "Audit"
+    },
+    {
+      "id": "TaskManage",
+      "zh": "共建任务管理",
+      "module": "pc-backend",
+      "surface": "pc-backend",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false,
+      "sourceNodeId": "Task"
+    },
+    {
+      "id": "Data",
+      "zh": "数据记录",
+      "module": "pc-backend",
+      "surface": "pc-backend",
+      "roles": [
+        "admin"
+      ],
+      "ugcWrite": false
+    }
+  ],
+  "invariants": [
+    "Every UGC-write screen (ugcWrite=true) must route its writes through the content-moderation gate (security.msgSecCheck / security.mediaCheckAsync) before content becomes visible. See ADR-0005.",
+    "The parent client must not be able to reach any screen whose module is in roleAccess.parent.forbiddenModules.",
+    "The PC backend / CMS is reachable only by admin; teacher and parent must have no route into pc-backend screens.",
+    "Observation records (观察记录) are out of scope and must NOT appear as a screen (collected via WeCom).",
+    "Module 家园社共育 is canonical (includes 社 / community); 家园共育 must not appear as a module/screen name."
+  ],
+  "conformance": {
+    "manifestCandidates": [
+      "src/pages.json",
+      "pages.json",
+      "app.json",
+      "src/app.json",
+      "miniprogram/app.json"
+    ],
+    "routeMap": "harness/structure/route-map.json",
+    "knowledgeGraph": ".understand-anything/knowledge-graph.json",
+    "rule": "When application source exists: every screen in this contract must map to a real page (via route-map.json); role-forbidden modules must be unreachable from a role's entry; UGC-write pages must reference a moderation call. Missing required pages or role/moderation violations BLOCK. Undocumented extra pages WARN."
+  }
+}

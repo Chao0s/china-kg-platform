@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+unpackage/        # uni-app build output
+miniprogram_npm/  # WeChat Mini Program npm build
+
+# Logs & temp
+*.log
+.DS_Store
+Thumbs.db
+*.tmp
+.cache/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Tooling / analysis
+# Ignore the understand-anything working files, but TRACK the knowledge-graph map
+# itself so it can be shared and used by the structure judge / CI.
+.understand-anything/*
+!.understand-anything/knowledge-graph.json
+!.understand-anything/config.json
+.planning/
+harness/.report/
+
+# Local scratch / temp (cleaned by `npm run clean:temp` or the temp-janitor subagent)
+tests/.tmp/
+**/*.tmp
+# Harness parity-test fixture names — must never be tracked at the repo root
+/a.md
+/b.md
+
+# here.now publish state (never commit claim tokens / local state)
+.herenow/
+
+# Secrets — NEVER commit AppID secrets, CloudBase keys, server keys
+project.private.config.json
+*.env
+.env*
+secrets/
+cloudbaserc.local.json
+
+# WeChat devtools local
+project.config.local.json
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+# Ephemeral git worktrees created by the agent (EnterWorktree) — never commit them.
+.claude/worktrees/

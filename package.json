@@ -1,0 +1,29 @@
+{
+  "name": "china-kg-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "化龙镇中心幼儿园电子资源平台 — spec, governance, and quality harness (WeChat Mini Program + PC backend)",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "gate": "node harness/gate.mjs",
+    "gate:fast": "node harness/gate.mjs --fast",
+    "glossary": "node harness/glossary-check.mjs",
+    "lint": "node harness/typewriter.mjs lint",
+    "lint:fix": "node harness/typewriter.mjs lint --fix",
+    "new": "node harness/typewriter.mjs new",
+    "judge:design": "python harness/judges/design_judge.py docs",
+    "judge:wording": "python harness/judges/wording_judge.py docs",
+    "judge:structure": "python harness/judges/structure_judge.py",
+    "parity": "node harness/parity-check.mjs",
+    "clean:temp": "node harness/clean-temp.mjs",
+    "graph": "node scripts/launch-knowledge-graph.mjs",
+    "test": "node --test tests/",
+    "hooks:install": "node harness/install-hooks.mjs",
+    "prepare": "node harness/install-hooks.mjs || true"
+  },
+  "keywords": ["wechat", "miniprogram", "kindergarten", "幼儿园", "小程序", "prd", "design-system"],
+  "license": "UNLICENSED"
+}
