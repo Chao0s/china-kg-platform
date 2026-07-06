@@ -18,8 +18,17 @@ if [ -z "$NODE_BIN" ]; then
   exit 1
 fi
 
-# Run from the repo root so harness paths resolve.
+# Run from the repo root so harness paths resolve. When this repo is nested inside a larger
+# workspace (harness/ lives one level down, e.g. "Hualong Platform/harness"), fall back to the
+# directory containing THIS hooks folder instead of the git top-level.
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ ! -f "$ROOT/harness/gate.mjs" ]; then
+  HOOK_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+  ALT_ROOT="$(dirname -- "$HOOK_DIR")"
+  if [ -f "$ALT_ROOT/harness/gate.mjs" ]; then
+    ROOT="$ALT_ROOT"
+  fi
+fi
 
 "$NODE_BIN" "$ROOT/harness/gate.mjs"
 STATUS=$?
