@@ -218,6 +218,12 @@ Template messages （模板消息） were **discontinued 2020-01-10**; use **订
 | File system | **`wx.getFileSystemManager()`** → `FileSystemManager` (read/write/save/unzip local files). ([FileSystemManager](https://developers.weixin.qq.com/miniprogram/dev/api/file/wx.getFileSystemManager.html)) |
 
 **Exporting the 成长册 (growth book) to PDF/image:**
+
+> **Not built — superseded 2026-08-12 by F17.** The growth book is **app-only**: no PDF, no image album, no
+> download, no sharing and no server-side rendering. The notes below record what the WeChat platform *can* do
+> and are retained as platform research, not as a description of this product. See
+> [../PRD.md](../PRD.md) §6.6.
+
 - **In-app image export:** render the page/cards to a canvas and **`wx.canvasToTempFilePath()`** → save with **`wx.saveImageToPhotosAlbum()`**. Good for single-page/photo growth cards.
 - **Multi-page PDF （成长册）:** best generated **server-side** （云函数 + a PDF library, e.g. headless render / pdfkit / puppeteer-style on a server) → store in 云存储 → deliver to the client via `downloadFile` + `openDocument`, or push a download link. The Mini Program client has no native multi-page PDF generator, so do heavy PDF composition on the backend.
 

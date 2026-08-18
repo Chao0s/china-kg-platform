@@ -53,7 +53,7 @@
     }
   ],
   "handoff": {
-    "file": "HANDOFF.md",
+    "file": "docs/HANDOFF.md",
     "note": "Tracked (NOT gitignored) handoff doc. Run /handoff, then capture the result into this file so the next session/agent can continue. The gate reminds when a commit does not update it."
   },
   "understandMap": {

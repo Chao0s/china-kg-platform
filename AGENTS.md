@@ -6,9 +6,18 @@ file** wherever they overlap. Other LLM tools should read this file first.
 
 ## What this repository is
 The spec, design system, terminology contract, and quality harness for 化龙镇中心幼儿园电子资源平台
-(Hualong Kindergarten Electronic Resource Platform) — a WeChat Mini Program (微信小程序) plus a PC backend.
-Application code is added later and is governed by this harness. See [docs/PRD.md](docs/PRD.md) and
+(Hualong Kindergarten Electronic Resource Platform) — **two** WeChat Mini Programs (教师端 and 家长端) plus a
+PC backend. This repository governs; it holds no application code. See [docs/PRD.md](docs/PRD.md) and
 [docs/adr/0001-repository-as-spec-and-harness-foundation.md](docs/adr/0001-repository-as-spec-and-harness-foundation.md).
+
+**The application lives in four sibling repositories**, beside this one at the workspace root. See
+"Working across the sibling repos" below. As of 2026-08-19 none of them contains application code either:
+the backend repo is a schema and decision log, and the three client repos are static HTML prototypes.
+
+**The infrastructure is live.** A Tencent Cloud instance runs PostgreSQL 16 with the full 62-table schema
+executed and verified, plus COS object storage for media; the domain is filed and pending
+([ADR-0014](docs/adr/0014-cloud-vendor-tencent.md)). **There is still no API layer** — no OpenAPI document and
+no endpoint contract anywhere. Designing it is the current critical path.
 
 ## Golden rules
 1. **The glossary is law.** Use canonical terms from [docs/glossary.json](docs/glossary.json) / [CONTEXT.md](CONTEXT.md). Forbidden variants are a blocking error. To discuss a forbidden term, wrap it in `inline code`.
@@ -19,7 +28,7 @@ Application code is added later and is governed by this harness. See [docs/PRD.m
 6. **Decisions become ADRs.** Hard-to-reverse, surprising trade-offs go in [docs/adr/](docs/adr/).
 7. **Follow the agreed app structure.** [docs/APP-STRUCTURE.md](docs/APP-STRUCTURE.md) (1:1 with the source flowcharts) + [harness/structure/app-structure.json](harness/structure/app-structure.json) are the structural truth. The structure judge blocks code that drifts. Admin reaches the PC backend / CMS; teachers and parents do not.
 8. **EN ↔ 简中 move together.** A commit that changes one half of a bilingual pair (PRD, README) without the other is blocked by the parity check.
-9. **Hand off every session.** Run `/handoff` and capture it into the tracked [HANDOFF.md](HANDOFF.md); the gate reminds you when a commit does not update it.
+9. **Hand off every session.** Run `/handoff` and capture it into the tracked [docs/HANDOFF.md](docs/HANDOFF.md); the gate reminds you when a commit does not update it.
 10. **Refresh the codebase map.** Run `/understand-anything:understand` to rebuild `.understand-anything/knowledge-graph.json`; the structure judge and reviewers compare the live code against the agreed structure through it.
 
 ## The harness
@@ -64,7 +73,7 @@ Project-specific reviewers live in `.claude/agents/`:
 ## Gate reminders & the codebase map / 闸门提醒与代码地图
 Every `npm run gate` ends with a **Summary**; non-blocking reminders appear there with a `!` and the word
 `reminder`. Three guidance reminders exist (configurable in `harness.config.json`):
-- **handoff** — fires when a commit does not update [HANDOFF.md](HANDOFF.md). Run `/handoff`, capture it there.
+- **handoff** — fires when a commit does not update [docs/HANDOFF.md](docs/HANDOFF.md). Run `/handoff`, capture it there.
 - **understandMap** — fires when **`.understand-anything/knowledge-graph.json` is missing**. That file is the
   codebase map; it does not exist until you run `/understand-anything:understand`. Once generated it is the
   one map file we **track** (everything else under `.understand-anything/` is ignored), and the structure
@@ -80,6 +89,29 @@ Pull live, version-current docs through **context7** (`mcp__…Context7__query-d
 - `/wechat-miniprogram/api-typings` — TypeScript typings.
 Development plan and the study answer: [docs/research/wechat-dev-plan.md](docs/research/wechat-dev-plan.md).
 
+## Working across the sibling repos / 跨仓库协作
+
+The application lives in four repositories beside this one, all on `github.com/Chao0s`. A second developer,
+**Lin / linem7**, commits to all four in large batches — **pull before you work**.
+
+| Repo | Holds | Note |
+| --- | --- | --- |
+| `../hualong-backend` | The 62-table schema of record, the cross-application decision log `DECISIONS.md`, the gap register `db/GAPS.md`, and its own gate harness | No service code |
+| `../hualong-teacher` | Teacher Mini Program and its backend specs | Default branch is **`master`**, not `main` |
+| `../hualong-parent` | Parent Mini Program and its backend specs | |
+| `../hualong-admin-pc` | PC console and its nine backend specs | |
+
+Three rules that are easy to get wrong:
+
+1. **`hualong-backend/db/01_schema.sql` is the sole field-level authority.** This repo deliberately does not
+   duplicate it; [docs/DATA-DICTIONARY.md](docs/DATA-DICTIONARY.md) is only a pointer.
+2. **The `ui=` to `data-ui` binding contract is the cross-repo naming authority.** A spec declares
+   `ui=<token>`; the matching write control carries `data-ui="<token>"`. Never invent a token on the markup
+   side — add the annotation to the spec first.
+3. **Bindings genuinely cross repos in both directions.** A token declared in the teacher specs may be used
+   by parent markup and vice versa, so a validator run against one repo alone reports false results in both
+   directions. Check the pair before believing an "unbound token" finding.
+
 ## Commit conventions
 Conventional Commits, present-tense subject. Examples: `docs: add resource-library acceptance criteria`,
 `design: define color tokens in DESIGN.md`, `harness: tighten CJK punctuation rule`. Keep the gate green; do
@@ -87,7 +119,8 @@ not bypass with `--no-verify` unless you have a specific, stated reason.
 
 ## Repository map
 ```
-docs/            PRD (EN + 简中), DESIGN.md, APP-STRUCTURE.md, GRILLING.md, glossary.json, research/, adr/, index.html (Pages)
+docs/            PRD (EN + 简中), SECURITY.md, DELIVERY.md, ANALYTICS.md, NOTIFICATIONS.md, DATA-DICTIONARY.md,
+                 DESIGN.md, APP-STRUCTURE.md, GRILLING.md, HANDOFF.md, glossary.json, templates/, research/, adr/, index.html (Pages)
 harness/         gate.mjs, glossary-check.mjs, typewriter.mjs, parity-check.mjs, code-review.mjs,
                  harness.config.json, judges/ (design, wording, structure), structure/ (app-structure.json, route-map.json), lib/
 tests/           unit/ (harness, judges, glossary data), e2e/ (chrome-devtools spec + static proxy)
@@ -95,6 +128,6 @@ tests/           unit/ (harness, judges, glossary data), e2e/ (chrome-devtools s
 .githooks/       pre-commit (gate), commit-msg (conventional commits)
 .github/         workflows/ci.yml (gate), workflows/pages.yml (Pages deploy), PR template
 CONTEXT.md       domain glossary (human mirror of glossary.json)
-HANDOFF.md       tracked session handoff (refreshed via /handoff)
+docs/HANDOFF.md  tracked session handoff (refreshed via /handoff)
 CLAUDE.md        Claude Code layer; imports this file via @AGENTS.md
 ```

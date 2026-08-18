@@ -7,8 +7,10 @@ the canonical source of truth and supersedes this file** wherever they overlap; 
 Claude-Code-specific layer below.
 
 ## Project in one line
-The spec + design + quality harness for 化龙镇中心幼儿园电子资源平台, a WeChat Mini Program (微信小程序) +
-PC backend for a public kindergarten. This repo governs the app code that comes later.
+The spec + design + quality harness for 化龙镇中心幼儿园电子资源平台 — **two** WeChat Mini Programs
+(教师端, 家长端) plus a PC backend for a public kindergarten. This repo governs; the application lives in four
+sibling repos (see AGENTS.md → "Working across the sibling repos"). Infrastructure is live; the API layer does
+not exist yet and is the current critical path.
 
 ## How to work here
 - **Start from the spec.** [docs/PRD.md](docs/PRD.md) is the contract; [docs/GRILLING.md](docs/GRILLING.md) holds open questions. Do not resolve an open question by guessing — ask, or record it.
@@ -38,11 +40,12 @@ Then run `npm run lint:fix` to normalize, and `npm run gate`.
 ## Non-negotiables (will fail review or launch)
 1. Content moderation (内容安全): all user content passes `security.msgSecCheck` / `security.mediaCheckAsync` before it is visible. See [docs/adr/0005-mandatory-content-moderation.md](docs/adr/0005-mandatory-content-moderation.md).
 2. Minors' data: explicit guardian consent, privacy popup, data minimization, strict access, defined retention.
-3. Launch gates: ICP filing (小程序备案), WeChat verification (微信认证), and education category/qualification (类目/资质).
+3. Launch gates: ICP filing (小程序备案), WeChat verification (微信认证), and education category/qualification (类目/资质). All are **per-AppID**, so two Mini Programs double them. The legal subject is settled ([ADR-0010](docs/adr/0010-legal-subject.md), Accepted).
 4. The parent client shows only home-school-community co-education content.
 
 ## When adding application code (later)
-- Confirm the stack first ([ADR-0003](docs/adr/0003-client-framework.md) framework, [ADR-0004](docs/adr/0004-backend-cloudbase-vs-alibaba.md) backend) — both are proposed, not signed off.
+- The stack is settled: [ADR-0003](docs/adr/0003-client-framework.md) (native Mini Program + a dedicated PC web admin) is Accepted, and [ADR-0014](docs/adr/0014-cloud-vendor-tencent.md) (Tencent Cloud) supersedes [ADR-0004](docs/adr/0004-backend-cloudbase-vs-alibaba.md) on vendor and media storage.
+- **There is no API contract yet.** Before writing an endpoint, read [docs/DELIVERY.md](docs/DELIVERY.md) §A3 — the contract itself is the missing deliverable, and inventing one endpoint at a time is how the 313 uncovered write controls stay uncovered.
 - `harness/code-review.mjs` activates automatically once `src/` or `miniprogram/` exists and flags user-content writes that lack a moderation call.
 - Keep secrets out of the client and the repo; HTTPS-only; respect Mini Program package-size limits.
 

@@ -29,7 +29,7 @@ Build personalization as an **adults-only**, **deferred** capability with a hard
    never algorithmically profiled in v1/v1.x (their interests proxy the child); a v2 decision gets its own
    grilling + ADR. Parents still get explicit `收藏` / follow.
 3. **No `child_id` on personalization signals.** Personalization events carry content attributes only and
-   never a child identifier — a stream separate from the MEASUREMENT.md metric events (which may carry
+   never a child identifier — a stream separate from the metric events in ANALYTICS.md Part A (which may carry
    `child_id` for admin-only aggregates).
 4. **Outputs capped at preference-level.** `兴趣画像` outputs are content-preference tags, never a need /
    diagnosis or any inference about a child.
@@ -43,7 +43,7 @@ Build personalization as an **adults-only**, **deferred** capability with a hard
 > 去除 child_id 的信号底座与显式功能（收藏／关注分类），不含 LLM、不做按人投放、上线不做算法备案；LLM/RAG 的
 > 兴趣画像与个性化推荐在 v1.x 交付并通过其自身合规闸门。（2）教师优先，家长为单独的 v2 决策：v1/v1.x 仅对教师
 > 画像，家长不做算法画像（其兴趣是幼儿的代理变量），家长画像另行 grilling 并立 ADR；家长仍可使用显式收藏／
-> 关注。（3）个性化信号不含 child_id：仅记录内容属性，与 MEASUREMENT.md 的指标事件分流（后者可含 child_id 用于
+> 关注。（3）个性化信号不含 child_id：仅记录内容属性，与 ANALYTICS.md 甲部的指标事件分流（后者可含 child_id 用于
 > 仅管理端的聚合）。（4）输出仅限偏好层级：兴趣画像只产出内容偏好标签，绝不含对幼儿的需求判断或推断。（5）教师
 > 默认开启＋告知＋关闭开关：满足自动化决策（个人信息保护法第 24 条）的退出权与解释权；教师可查看／删除画像并
 > 撤回（撤回即清除）。（6）国内模型＋数据处理协议：归纳／检索在国内模型（阿里云通义千问，ADR-0004）上运行，
@@ -74,4 +74,4 @@ Build personalization as an **adults-only**, **deferred** capability with a hard
   pairs with [ADR-0009](0009-minors-data-retention.md) (minors' retention) and depends on
   [ADR-0010](0010-legal-subject.md) (主体). Open items — `算法备案` applicability for an internal staff tool,
   the DPA terms, the 24-month justification, and parent profiling — are tracked in [GRILLING.md](../GRILLING.md) §I.
-  Build detail in [PERSONALIZATION.md](../PERSONALIZATION.md).
+  Build detail in [ANALYTICS.md](../ANALYTICS.md) Part B.

@@ -1,6 +1,6 @@
 # ADR-0004: Backend platform — Alibaba Cloud (RDS + OSS + VOD + API)
 
-- **Status:** Accepted (chose Alibaba Cloud over WeChat CloudBase)
+- **Status:** Superseded on vendor and media storage by [ADR-0014](0014-cloud-vendor-tencent.md) (2026-08-19). The reasoning below for a relational store over a document store, and for object storage over database-resident files, still stands; only the vendor changed — the platform runs on Tencent Cloud, not Alibaba Cloud.
 - **Date:** 2026-06-18
 - **Deciders:** Product owner, engineering lead
 - **Module / 模块:** backend (data, files, media, API, auth)

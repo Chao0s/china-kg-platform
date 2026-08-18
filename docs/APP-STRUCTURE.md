@@ -18,6 +18,10 @@
 | Mini Program — 家园社共育 + 首页/通知 | Yes | Yes | Yes (own child only) |
 | **PC backend / CMS (PC后台)** | **Yes** | **No** | **No** |
 
+There are **exactly two Mini Programs** this cycle — 教师端 and 家长端. There is **no admin Mini Program**:
+the admin role acts through the teacher client for content management and uses the PC后台 for cross-class
+work. The rows above describe module access by role, not a separate admin app.
+
 Key rule confirmed: the **PC backend / CMS is admin-only**. Teachers and parents have **no CMS access** in the
 current scope. The parent client surfaces only home-school-community co-education content plus its own notices
 and tasks; it never renders staff modules. See [ADR-0002](adr/0002-co-education-naming.md) for the canonical
@@ -273,7 +277,7 @@ flowchart LR
     TermEval --> Scale["填写五大领域量表"]
     Scale --> Radar["生成五维雷达图"]
     Radar --> TermReport["生成综合评估报告"]
-    TermReport --> ExportReport["导出 / 发布给家长"]
+    TermReport --> ExportReport["发布给家长（导出与否见 G36，未决）"]
 
     %% — 成长册 —
     GrowthBook --> BookCreate["生成成长册"]
@@ -287,9 +291,13 @@ flowchart LR
     FromTask --> BookPreview
     FromEval --> BookPreview
     FromIntro --> BookPreview
-    BookPreview --> BookExport["确认发布 / 导出"]
+    BookPreview --> BookExport["确认定稿并开放（仅应用内）"]
     BookExport --> ParentBookView["家长端查看"]
 ```
+
+> **成长册自 F17 起仅在应用内。** 不出 PDF、不出图片册、不可下载、不可分享、不做服务端渲染；上图的
+> "确认定稿并开放" 指状态由 `b1` 迁移到 `b2`，而非产出文件。评估报告的导出（`ExportReport`）是另一回事，
+> 目前记为未决缺口 G36，本文不予判定。
 
 ## 07 · 家长端 Parent client
 

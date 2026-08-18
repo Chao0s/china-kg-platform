@@ -1,69 +1,89 @@
-# NOTIFICATIONS.md — 订阅消息 (Subscribe message) event catalogue
+# NOTIFICATIONS.md — In-app notification catalogue / 站内通知目录
 
-- **Status:** Build-ready spec (derived from [PRD.md](PRD.md) §6 / §7.3, [GRILLING.md](GRILLING.md) item F)
-- **Date:** 2026-06-18
-- **Scope:** Every user-facing notification event, its recipient role, what triggers it, the channel it uses,
-  and its mandatory fallback.
+- **Status:** Build-ready spec v0.2, revised 2026-08-19
+- **Date:** 2026-06-18, revised 2026-08-19
+- **Scope:** Every user-facing notification event, its recipient role, what triggers it, and where it lands.
 
-## 1. Mechanism decision
+> **Revised 2026-08-19 — the mechanism changed.** v1 notifications are **in-app only**. There are no WeChat
+> `订阅消息` (Subscribe message) sends anywhere in v1. The previous version of this document treated
+> `订阅消息` as the primary channel with an in-app fallback; that is inverted now, and the outbound channel is
+> simply not built. The reasoning is preserved in §4 because it explains why the in-app inbox was designed to
+> stand alone in the first place — that design is exactly what makes dropping the outbound channel cheap.
 
-WeChat notifications on this platform use **`订阅消息` (Subscribe message)** — the per-user, consent-based
-mechanism. It is the only supported path: the legacy `模板消息` mechanism is retired and arbitrary `推送` is
-not a Mini Program capability, so those words must not appear in code or product copy (Avoid: `模板消息`,
-`推送`). See [glossary.json](glossary.json) `subscribe-message`.
+## 1. Mechanism
 
-Two facts shape the whole catalogue:
+**Every notification is an in-app entry. That entry is the notification, not a fallback for one.**
 
-- **One-time-subscribe is realistic; long-term eligibility is OPEN.** A `订阅消息` is granted by the user one
-  delivery at a time unless the account qualifies for a long-term template, and that eligibility depends on
-  the education `类目` and is unconfirmed ([GRILLING.md](GRILLING.md) item F). We design for the one-time
-  case and treat any long-term grant as a bonus.
-- **Therefore every notification MUST have an in-app inbox fallback.** Because a `订阅消息` may not be granted
-  (the user declined, the one-time grant was already consumed, or the quota is exhausted), the canonical
-  record of every notification is an in-app inbox entry inside the relevant `Notice` / to-do surface. The
-  `订阅消息` is a best-effort nudge layered on top; the inbox is the source of truth. A user who never
-  accepts a `订阅消息` must still be able to find every notification in-app.
+The in-app inbox is per-user and role-scoped. Unread entries drive the to-do badges on 首页, which gives every
+user a reliable path to every notification with no dependency on a platform grant, a quota, or a category
+eligibility that is outside the team's control.
+
+`订阅消息` remains the only mechanism WeChat supports for outbound push — the legacy `模板消息` is retired and
+arbitrary push is not a Mini Program capability, so neither word belongs in code or product copy. If outbound
+push is added later, it layers **on top of** the catalogue below and changes nothing in it: the in-app entry
+is still written first and is still the record.
 
 ## 2. Event catalogue
 
-Channel column: "`订阅消息` + inbox" means attempt a `订阅消息` when a grant is available and always write the
-in-app inbox entry. Fallback column states what happens when no `订阅消息` is sent.
+Every row writes exactly one in-app entry at trigger time.
 
-| Event | Recipient (role) | Trigger | Channel | Fallback when no 订阅消息 granted |
-|---|---|---|---|---|
-| New `Notice` published | parent + teacher (audience of the notice) | Admin publishes a resource-center or role `Notice` | `订阅消息` + inbox | Inbox entry in the `Notice` list; surfaced as a to-do badge on `Home` |
-| Submission approved | teacher (author) | Admin `Audit` decision = `Approve`; item enters the library | `订阅消息` + inbox | Inbox entry; the item's status flips to published in the author's upload list |
-| Submission rejected | teacher (author) | Admin `Audit` decision = `Reject` with required reason | `订阅消息` + inbox | Inbox entry carrying the reason; item returns to `Draft` for revision in the upload list |
-| New co-construction task | teacher (selected participant) | Admin publishes a `Co-construction task` and selects the teacher | `订阅消息` + inbox | Inbox entry; task appears in the teacher to-do list with its deadline |
-| New parent-child task | parent (of the targeted child / class) | Teacher publishes a `Parent-child task` to a class or child | `订阅消息` + inbox | Inbox entry; task appears in the parent to-do list with its deadline |
-| Task feedback received | teacher (task owner) | Parent submits feedback on a `Parent-child task` (after moderation) | `订阅消息` + inbox | Inbox entry; completion progress updates on the teacher's task board |
-| Garden moment published | parent (guardian of the moment's child / class) | Teacher publishes a `Garden moment` (after moderation) | `订阅消息` + inbox | Inbox entry; the moment appears in the parent's child-related feed |
-| Evaluation published | parent (guardian of the child) | Teacher publishes a `Monthly evaluation` or a completed `Term evaluation` | `订阅消息` + inbox | Inbox entry; evaluation appears under the child's growth record |
-| Audit pending | admin | A teacher submits a resource or case into `pending-audit` | In-app admin queue (primary) + optional `订阅消息` | The admin audit queue badge on `Home` and in the `PC backend`; a `订阅消息` to admins is best-effort only |
+| Code | Event | Recipient (role) | Trigger | Where it lands |
+| --- | --- | --- | --- | --- |
+| — | New 通知 published | parent + teacher (the notice audience) | Admin publishes a resource-centre or role 通知 | Entry in the 通知 list; to-do badge on 首页 |
+| — | Submission approved | teacher (author) | Admin audit decision is Approve; the item enters the library | Entry; the item flips to published in the author's upload list |
+| — | Submission rejected | teacher (author) | Admin audit decision is Reject, with a required reason | Entry carrying the reason. **The item does not return to draft** — rejection is terminal and resubmission of the same item is forbidden. The author creates a new item instead. |
+| — | New co-construction task | teacher (selected participant) | Admin publishes a 共建任务 and selects the teacher | Entry; the task appears in the teacher to-do list with its deadline |
+| — | New parent-child task | parent (of the targeted child or class) | Teacher publishes a 亲子任务 | Entry; the task appears in the parent to-do list with its deadline |
+| — | Task feedback received | teacher (task owner) | Parent submits feedback, after moderation | Entry; completion progress updates on the teacher's task board |
+| — | Garden moment published | parent (guardian of the moment's child) | Teacher publishes a 在园时光, after moderation | Entry; the moment appears in the parent's child-related feed |
+| — | Evaluation published | parent (guardian of the child) | Teacher publishes a 月度评价 or a completed 学期评价 | Entry; the evaluation appears under the child's growth record |
+| — | Audit pending | admin | A teacher submits a resource or case into `pending-audit` | The admin audit queue badge on 首页 and in the PC后台 |
+| — | Child-profile correction decided | parent (the requesting guardian) | Admin rejects a correction request | Entry carrying the reason, sent to every current caretaker. **Approval sends nothing** — the record simply changes |
+| **`n4`** | Growth-book collection reminder | parent (guardian of a child with an outstanding slot) | Teacher presses 提醒家长 on a section where the child has not submitted | Entry; the outstanding section appears in the parent's to-do list |
+| **`n5`** | Growth book published | parent (every valid caretaker of the child) | A child's book reaches `b2` — published and opened | Entry; the book becomes readable in the parent client |
 
-## 3. Subscribe-message constraints and risk
+### Notes on the growth-book events
 
-- **Ask at the moment of intent.** Because a one-time grant covers a single delivery, request the `订阅消息`
-  authorisation right where the user takes the related action (for example, ask a parent to subscribe to
-  task replies just after they accept a `Parent-child task`), so the grant is fresh when the event fires.
-- **Quota and eligibility are a known risk.** The number of `订阅消息` deliveries is bounded by what each
-  user has granted, and long-term subscription depends on category eligibility that is still
-  open ([GRILLING.md](GRILLING.md) item F). Build assuming grants are scarce: never rely on a `订阅消息`
-  arriving, and never put information *only* in a `订阅消息`.
-- **Content rules apply.** A `订阅消息` body must match an approved template and stay within WeChat content
-  limits; the human-readable detail always lives in the in-app inbox entry, which the `订阅消息` links to.
-- **No `订阅消息` for un-moderated content.** A garden moment, feedback, or evaluation notification fires only
-  after the underlying UGC passes the content-moderation gate ([ADR-0005](adr/0005-mandatory-content-moderation.md)),
-  so a notification can never point a parent at content that has not cleared moderation.
-- **Minors-data care.** Notifications about a child are sent only to that child's guardians; bodies avoid
-  embedding sensitive `未成年人数据` and link into the access-controlled in-app view instead
+- **`n5` fires once per valid guardian, inside the same transaction that sets `b2`.** It must be idempotent on
+  replay, and it must not fire for a child with zero recorded caretakers, nor for a child the teacher
+  explicitly skipped during finalization — those children stay at `b1`.
+- **`n4` is the teacher's only recourse for a missing submission.** The teacher cannot upload on the family's
+  behalf; 代传, takeover and correction are all forbidden. Any product copy telling a parent that a teacher
+  will cover a missing slot is wrong and must be removed.
+
+## 3. Constraints
+
+- **No notification for un-moderated content.** A garden-moment, feedback or evaluation notification fires
+  only after the underlying UGC passes the content-moderation gate
+  ([ADR-0005](adr/0005-mandatory-content-moderation.md)), so a notification can never point a parent at
+  content that has not cleared moderation.
+- **Minors-data care.** Notifications about a child go only to that child's guardians. Bodies avoid embedding
+  sensitive 未成年人数据 and link into the access-controlled in-app view instead
   ([ADR-0009](adr/0009-minors-data-retention.md)).
-
-## 4. Inbox fallback contract
-
-- The in-app inbox is per-user and role-scoped; a parent's inbox never references staff modules
+- **Role scoping.** A parent's inbox never references staff modules
   ([APP-STRUCTURE.md](APP-STRUCTURE.md) role access).
-- Every event in §2 writes exactly one inbox entry at trigger time, independent of whether the `订阅消息`
-  send succeeds, so delivery failure degrades the experience (no push nudge) but never loses the message.
-- Unread inbox entries drive the to-do badges on `Home`, giving a reliable, grant-free path to every
-  notification.
+- **Write the entry with the action.** The entry is written in the same change that ships the action, never
+  retrofitted — see the definition of done in [DELIVERY.md](DELIVERY.md).
+
+## 4. Why the in-app inbox was always the record / 为何站内通知始终是唯一记录
+
+Retained from v0.1, because it explains why removing the outbound channel cost nothing.
+
+A `订阅消息` is granted by the user one delivery at a time unless the account qualifies for a long-term
+template, and that eligibility depends on the education 类目, which is still unconfirmed. The original design
+therefore treated every outbound send as best-effort and required an in-app entry regardless: a user who
+never accepted a `订阅消息` still had to be able to find every notification in the app.
+
+Because the inbox was already the source of truth rather than a consolation prize, dropping the outbound
+channel from v1 removed a compliance dependency and a quota risk without changing a single event definition.
+If long-term eligibility is later confirmed, outbound push can be added on top of this catalogue without
+revisiting it.
+
+> 中文：`订阅消息` 为一次性授权，长期模板须视教育类目资质而定，该资质至今未确认。原设计因此始终要求写入站内条目，把 `订阅消息` 视为尽力而为。正因站内通知本就是唯一记录，v1 取消该外发通道并未改动任何事件定义，只是移除了一项合规依赖与配额风险；若日后确认长期资质，可在本目录之上叠加 `订阅消息`，无需重做。
+
+## 5. Cross-references
+
+- Access control and role scoping: [SECURITY.md](SECURITY.md).
+- Definition of done, which requires the entry to ship with the action: [DELIVERY.md](DELIVERY.md).
+- Content-moderation gate: [ADR-0005](adr/0005-mandatory-content-moderation.md).
+- Open questions: [GRILLING.md](GRILLING.md).

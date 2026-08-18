@@ -17,6 +17,10 @@
 
 ---
 
+## Platform / 平台
+
+- **电子资源平台 (Electronic Resource Platform)** — the product itself: two WeChat Mini Programs (教师端, 家长端) plus a PC后台, serving 化龙镇中心幼儿园.
+
 ## Roles / 角色
 
 - **管理端 (Admin client)** — the interface for kindergarten managers: audits, publishing co-construction tasks, content and user management. *Avoid:* 管理版、管理员端、后台端.
@@ -41,7 +45,7 @@
 - **亲子任务 (Parent-child task)** — teachers publish a task (ordinary parent-child or community education); parents upload feedback; teachers track completion. *Avoid:* 亲子活动.
 - **社区教育 (Community education)** — a type of parent-child task for community-education scenarios.
 - **成长档案 (Growth record)** — holds monthly and term evaluations; the term evaluation produces the five-dimension radar chart and an assessment report. *Avoid:* 成长记录、档案袋.
-- **成长册 (Growth book)** — pick a template, check content to include, preview, then publish/export for parents. *Avoid:* 成长手册、成长记录册.
+- **成长册 (Growth book)** — a per-child, per-term book compiled by the teacher from selected content on a school-assigned template, finalized and then read by guardians **inside the Mini Program**. There is no export, download or sharing. *Avoid:* 成长手册、成长记录册.
 - **月度评价 (Monthly evaluation)** — select a month/child, fill in, publish to parents. *Avoid:* 月评.
 - **学期评价 (Term evaluation)** — fill the five-domain scale → radar chart → assessment report → export/publish. *Avoid:* 期末评价、学期末评价.
 - **五维雷达图 (Five-dimension radar chart)** — generated from the five-domain scale. *Avoid:* 五维图、雷达图 (alone).
