@@ -15,6 +15,29 @@ import path from 'node:path';
 
 const norm = s => String(s).replace(/\\/g, '/');
 
+// True if `target` (a root-relative path such as "docs/HANDOFF.md") appears in
+// `staged`.
+//
+// Callers should pass root-relative staged paths — gate.mjs and parity-check.mjs
+// use `git diff --cached --name-only --relative` to guarantee that. But when this
+// repo is nested inside a larger workspace and a caller omits --relative, git
+// reports top-level-relative paths instead ("Hualong Platform/docs/HANDOFF.md"),
+// and an exact match silently misses every time.
+//
+// So one extra form is accepted: the target prefixed by the root directory's own
+// name. That is precise. A bare suffix match would be wrong — "other/HANDOFF.md"
+// and "Hualong Platform/HANDOFF.md" are indistinguishable by suffix, and treating
+// a different project's file as ours reintroduces the silent miss this exists to
+// prevent, just in the other direction.
+export function stagedIncludes(staged, target, rootDir) {
+  const t = norm(target);
+  if (staged.some(f => f === t)) return true;
+  if (!rootDir) return false;
+  const base = norm(rootDir).replace(/\/+$/, '').split('/').pop();
+  if (!base) return false;
+  return staged.includes(base + '/' + t);
+}
+
 // True if the path exists and (for a directory) contains at least one entry.
 function nonEmpty(p) {
   try {
@@ -35,7 +58,7 @@ export function computeReminders({ rootDir, stagedFiles = [], config = {} }) {
   if (hLevel !== 'off') {
     const handoffFile = norm((config.handoff && config.handoff.file) || 'HANDOFF.md');
     const exists = fs.existsSync(path.join(rootDir, handoffFile));
-    const handoffStaged = staged.includes(handoffFile);
+    const handoffStaged = stagedIncludes(staged, handoffFile, rootDir);
     if (!exists) {
       out.push({ name: 'handoff', fire: true, level: hLevel, msg: `${handoffFile} is missing. Run /handoff and capture it into ${handoffFile} (tracked, not gitignored).` });
     } else if (committing && !handoffStaged) {

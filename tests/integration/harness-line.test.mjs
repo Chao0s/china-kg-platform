@@ -242,6 +242,41 @@ test('LINE reminder/handoff: FIRES when HANDOFF.md is missing', () => {
   const out = reminders.computeReminders({ rootDir: d, stagedFiles: [], config: {} });
   assert.equal(remOf(out, 'handoff').fire, true);
 });
+
+// Nested checkout: this repo living inside a larger workspace. `git diff --cached
+// --name-only` reports paths relative to the GIT TOP-LEVEL, not to the harness
+// root, so staged paths arrive prefixed ("Hualong Platform/docs/HANDOFF.md")
+// while the config says "docs/HANDOFF.md". gate.mjs and parity-check.mjs now
+// pass --relative so this should not happen, but stagedIncludes tolerates it
+// anyway — the reminder silently never firing is worse than a false positive.
+test('LINE reminder/handoff: SILENT when the staged path carries this root as its prefix', () => {
+  const d = remRoot({ handoff: true });
+  const base = path.basename(d);
+  const out = reminders.computeReminders({
+    rootDir: d,
+    stagedFiles: [`${base}/HANDOFF.md`, `${base}/docs/PRD.md`],
+    config: {},
+  });
+  assert.equal(remOf(out, 'handoff').fire, false, 'a path prefixed by this root must still count as staged');
+});
+test('LINE reminder/handoff: a same-named file under a DIFFERENT tree does not count', () => {
+  const d = remRoot({ handoff: true });
+  const out = reminders.computeReminders({
+    rootDir: d,
+    stagedFiles: ['other-project/HANDOFF.md'],
+    config: {},
+  });
+  assert.equal(remOf(out, 'handoff').fire, true, 'another project\'s file must not satisfy our handoff');
+});
+test('LINE stagedIncludes: exact match, root-prefixed match, and nothing looser', () => {
+  const f = reminders.stagedIncludes;
+  assert.equal(f(['docs/HANDOFF.md'], 'docs/HANDOFF.md'), true, 'exact');
+  assert.equal(f(['work/docs/HANDOFF.md'], 'docs/HANDOFF.md', '/tmp/work'), true, 'prefixed by the root basename');
+  assert.equal(f(['other/docs/HANDOFF.md'], 'docs/HANDOFF.md', '/tmp/work'), false, 'a different prefix must not match');
+  assert.equal(f(['nested/docs/HANDOFF.md'], 'docs/HANDOFF.md'), false, 'no rootDir means exact only');
+  assert.equal(f(['xdocs/HANDOFF.md'], 'docs/HANDOFF.md', '/tmp/work'), false, 'partial segment');
+  assert.equal(f([], 'docs/HANDOFF.md', '/tmp/work'), false, 'nothing staged');
+});
 test('LINE reminder/map: FIRES when knowledge-graph.json is missing', () => {
   const d = remRoot({ map: false });
   const out = reminders.computeReminders({ rootDir: d, stagedFiles: [], config: {} });

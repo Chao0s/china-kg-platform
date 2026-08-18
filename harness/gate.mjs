@@ -50,8 +50,13 @@ function detectPython() {
   return null;
 }
 
+// --relative makes git report paths relative to cwd (= ROOT) instead of the git
+// top-level. Without it, a nested checkout (this repo living inside a larger
+// workspace) yields "Hualong Platform/docs/HANDOFF.md" while the config says
+// "docs/HANDOFF.md", so every staged-file comparison silently misses.
+// It also correctly excludes files staged outside ROOT, which are not ours.
 function stagedFiles() {
-  const r = spawnSync('git', ['diff', '--cached', '--name-only'], { cwd: ROOT, encoding: 'utf8' });
+  const r = spawnSync('git', ['diff', '--cached', '--name-only', '--relative'], { cwd: ROOT, encoding: 'utf8' });
   if (r.status !== 0 || !r.stdout) return [];
   return r.stdout.split(/\r?\n/).map(s => s.trim()).filter(Boolean).map(s => s.replace(/\\/g, '/'));
 }

@@ -16,6 +16,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, read, parseArgs, sevTag, c } from './lib/util.mjs';
+import { stagedIncludes } from './lib/reminders.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const json = !!args.flags.json;
@@ -47,8 +48,11 @@ function headingProfile(file) {
 }
 
 // Files staged in the current commit (empty array when not committing / not a git repo).
+// --relative reports paths relative to cwd (= BASE) rather than the git top-level.
+// Without it the staged co-update check below never fires in a nested checkout,
+// because the pair paths are BASE-relative and git's are top-level-relative.
 function stagedFiles() {
-  const r = spawnSync('git', ['diff', '--cached', '--name-only'], { cwd: BASE, encoding: 'utf8' });
+  const r = spawnSync('git', ['diff', '--cached', '--name-only', '--relative'], { cwd: BASE, encoding: 'utf8' });
   if (r.status !== 0 || !r.stdout) return [];
   return r.stdout.split(/\r?\n/).map(s => s.trim()).filter(Boolean).map(s => s.replace(/\\/g, '/'));
 }
@@ -79,8 +83,8 @@ for (const pair of pairs) {
 
   // 2. Staged co-update
   if (staged.length) {
-    const enStaged = staged.includes(norm(pair.en));
-    const zhStaged = staged.includes(norm(pair.zh));
+    const enStaged = stagedIncludes(staged, pair.en, BASE);
+    const zhStaged = stagedIncludes(staged, pair.zh, BASE);
     if (enStaged !== zhStaged) {
       const changed = enStaged ? pair.en : pair.zh;
       const missing = enStaged ? pair.zh : pair.en;
