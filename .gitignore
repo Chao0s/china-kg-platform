@@ -56,3 +56,8 @@ project.config.local.json
 !.vscode/extensions.json
 # Ephemeral git worktrees created by the agent (EnterWorktree) — never commit them.
 .claude/worktrees/
+
+# Windows / Google Drive folder metadata. This workspace lives on Drive, which
+# scatters these through every directory.
+desktop.ini
+Thumbs.db

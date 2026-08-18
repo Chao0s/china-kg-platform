@@ -5,6 +5,12 @@
 *.sh text eol=lf
 .githooks/* text eol=lf
 
+# Windows launchers keep CRLF. Teammates double-click these on Windows, and a
+# .bat with LF endings can misbehave in cmd.exe.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
 # Treat these as binary (no diff/eol munging).
 *.png binary
 *.jpg binary
