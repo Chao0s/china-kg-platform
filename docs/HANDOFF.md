@@ -7,7 +7,7 @@
 > 交接文档（纳入版本管理）。运行 `/handoff` 后将结果写入此处并提交；闸门会在提交未更新本文件时提醒。
 > 请勿写入密钥、凭证或个人信息。
 
-**Last updated:** 2026-08-19
+**Last updated:** 2026-08-19 (second pass — sibling-repo fixes landed; the plan is in section 10)
 
 ---
 
@@ -30,10 +30,10 @@ fast-forwarded on 2026-08-19:
 
 | Repo | Head | What it actually contains | Real code? |
 | --- | --- | --- | --- |
-| `../hualong-backend` | `614cc8f` | 62-table PostgreSQL 16 schema, a 333 KB decision log, 8 Node harness scripts | No service code |
-| `../hualong-parent` | `ac6e63f` | Parent Mini Program — 17 static HTML prototype screens | Not Mini Program code |
+| `../hualong-backend` | `512f239` | 62-table PostgreSQL 16 schema, a 333 KB decision log, 8 Node harness scripts | No service code |
+| `../hualong-parent` | `ead7034` | Parent Mini Program — 17 static HTML prototype screens | Not Mini Program code |
 | `../hualong-teacher` | `c0b48f7` | Teacher Mini Program — 57 static HTML screens. **Default branch is `master`, not `main`** | Not Mini Program code |
-| `../hualong-admin-pc` | `335167b` | PC web console — one 131 KB single-file HTML mock plus 9 specs | Not an application |
+| `../hualong-admin-pc` | `181b694` | PC web console — one 131 KB single-file HTML mock plus 9 specs | Not an application |
 
 A second developer, **Lin / linem7**, commits to all four in large batches. **Always pull before working.**
 
@@ -55,9 +55,10 @@ Recorded in [ADR-0014](adr/0014-cloud-vendor-tencent.md), which supersedes ADR-0
 `127.0.0.1:3001`, enforced by `90-devtunnel.conf`. All three properties were tested: the permitted port works,
 other ports are refused, and an interactive shell is refused.
 
-> ⚠️ **Do not confuse this with `43.136.113.129`.** That is the *Teacher Resources* platform's server.
-> `hualong-backend/CONTEXT.md:54` wrongly names that host as the Hualong target VPS — a correction someone
-> must make in the sibling repo.
+> ⚠️ **Do not confuse this with `43.136.113.129`.** That is the *Teacher Resources* platform's server, and
+> the two are easy to mix up because both run PostgreSQL 16.14. `hualong-backend/CONTEXT.md` named that host
+> as the Hualong target VPS — corrected in `512f239`, along with the resource figures, which described a
+> 2-core machine shared with another platform rather than this 4-core dedicated one.
 
 ### Database
 **PostgreSQL 16.14** on the instance, listening on loopback only, database `hualong`. `01_schema.sql`,
@@ -118,10 +119,13 @@ The 12 growth-book layout packs. Currently **0 of 12 released** — every `pack.
 `assets` and `layouts`. This has the longest lead time of anything outstanding and it blocks the growth book
 entirely.
 
-### Items 9–12 · Documentation and design · **in progress now**
+### Items 9–12 · Documentation and design · **9 to 11 done; 12 is the next session**
 9. Write ADR-0014 recording Tencent as the cloud vendor. **Done** — see [ADR-0014](adr/0014-cloud-vendor-tencent.md).
-10. Fix the documented contradictions (section 5 below). Umbrella-side done; sibling-repo fixes outstanding.
-11. Decide where the API server code lives — likely `hualong-backend`, alongside its schema.
+10. Fix the documented contradictions (section 5 below). **Done** — umbrella and all three affected sibling
+    repos, 2026-08-19.
+11. Decide where the API server code lives. **`../hualong-backend`**, beside the schema it serves: that repo
+    already holds the decision log and the gate harness, and a contract that does not move with its schema
+    drifts from it.
 12. **Design the API contract.** The critical path. Envelope, error shape, status codes, pagination,
     idempotency; `wx.login → code2session` with multi-role resolution; server-side scope enforcement per
     request; the 313 button endpoints with their state-machine guards; and the STS pre-signed upload flow.
@@ -144,26 +148,26 @@ August.
 - ~~ADR-0004 chose Alibaba Cloud while the platform runs on Tencent~~ — superseded by ADR-0014.
 - ~~ADR-0010 read "Open (blocker)" though the subject was confirmed~~ — now Accepted.
 
-**Outstanding, in the sibling repos:**
-- `../hualong-admin-pc`: `db_admin_school` was deleted by commit `0fa5ea9` but **only in `dashboard-spec.md`**.
-  Eight other specs still instruct the backend to filter on it, including the `[CONTEXT_RULE]` that defines the
-  admin authorization boundary. This is an implementable-wrong-thing today.
-- `../hualong-admin-pc`: `growth-book-setting-spec.md:382` still returns 409 for withdrawal inside
-  `[JUMP_VALIDATION]` — the section that maps directly to HTTP behaviour — contradicting the withdrawal feature
-  shipped in `e55e9f7`.
-- `../hualong-admin-pc`: `db_school_book_release` and `db_school_book_template_assignment` are referenced by
-  rules but registered in no canonical object list — the exact failure mode commit `5f9eb81` was written to
-  prevent, recurring nine days later.
-- `../hualong-backend`: `db/01_schema.sql` opens with a header declaring the file is not yet in effect and
-  should be run from a filename that no longer exists. `03_verify.sql` has the same defect.
-- `../hualong-backend`: `DATABASE_SPEC.md` §3 declares 62 tables in its heading but its breakdown sums to 45,
-  and the list beneath still enumerates the pre-migration schema. The harness cannot catch this — it only
-  regexes the digits out of the heading.
+**Resolved in the sibling repos, 2026-08-19.** Fixed and pushed; see the commit messages for the reasoning
+rather than repeating it here.
+
+| Repo | Commit | Fixed |
+| --- | --- | --- |
+| `../hualong-admin-pc` | `181b694` | `db_admin_school` retired across the eight specs that still resolved authorization through it; the `[JUMP_VALIDATION]` rule that refused withdrawal; `db_school_book_release` and `db_school_book_template_assignment` registered |
+| `../hualong-backend` | `512f239` | Target host corrected from the Teacher Resources server; the "not yet in effect" DDL headers; `DATABASE_SPEC.md` §3 |
+| `../hualong-parent` | `ead7034` | The 代传 promises in the prototype, the IA and `home-spec.md` |
+
+**Still outstanding, and deliberately not changed:**
+
 - `../hualong-teacher`: 51 prototype screens load `https://mcp.figma.com/mcp/html-to-design/capture.js` on
-  every open. It arrived as a one-line drive-by in commit `29059a6` and is the only external network call in
-  either app repo.
-- `../hualong-parent`: the prototype still tells parents a teacher can upload on their behalf (代传). F19
-  forbids it — the teacher may only send a reminder.
+  every open, added across 54 files in commit `29059a6`. That reads as intentional html-to-design tooling
+  rather than an accident, and it contradicts no spec, so it is **not** ours to revoke — it needs a decision
+  with whoever set it up. It is the only outbound network call in either app repo. Harmless against mock data;
+  a leak path if the pattern survives into screens carrying real children's information.
+- `../hualong-admin-pc`: `organization-spec.md` still lists `db_teacher_class`, `db_parent_child` and
+  `db_upload` in its shared-object and identity lists. Same class of defect as `db_admin_school`, but that
+  spec explicitly defers them (另批处理) because changing them touches `rel_map` and live `admin_org.*`
+  bindings. The stated sequencing was left intact rather than overridden.
 
 ---
 
@@ -244,18 +248,65 @@ The full gate passes: glossary, typewriter, structure judge, parity, design judg
 tests. The one test that had been failing — the dashboard core-import check — was an unbuilt plugin cache, not
 a repository fault; it was fixed by building `@understand-anything/core` in the plugin cache.
 
-**Still to do in the sibling repos.** Every contradiction in section 5 marked outstanding is untouched,
-because Lin commits to those repos actively and uncommitted edits there would collide. Start with
-`db_admin_school`.
+**The sibling-repo corrections landed the same day** — see the table in section 5. All four application
+repos are clean and in sync with their remotes; `../hualong-teacher` has no changes for the reason given
+there.
 
-## 10. Suggested next actions / 下一步
+## 10. The plan from here / 后续计划
 
-1. **Design the API contract** (item 12). Nothing in items 13–22 can start without it, and it is the only
-   remaining item where the decision-maker is the bottleneck rather than the work.
-2. **Fix the sibling-repo contradictions** in section 5, starting with `db_admin_school` — it is the one a
-   developer could implement wrongly tomorrow.
-3. **Chase item 8**, the artwork. Longest external lead time; blocks the product's centrepiece.
-4. Correct `../hualong-backend/CONTEXT.md`, which names the wrong server as the target host.
+Items 9 to 11 are done. **Item 12, the API contract, is the whole of the next session** — everything in
+13 to 22 is blocked behind it, and it is the one remaining item where the constraint is a decision rather
+than the work.
+
+### Next session: design the API contract
+
+Where it should live: `../hualong-backend`, beside the schema it serves (item 11). That repo already holds
+the decision log and the gate harness, and the contract has to move with the schema or the two drift.
+
+Design it in this order, because each layer constrains the next:
+
+1. **The envelope, once.** Success and error shapes, status-code conventions, pagination, and the idempotency
+   key that `publish_idempotency_rule` already mandates for growth-book publishing. Every later endpoint
+   inherits this, so changing it afterwards is expensive.
+2. **Auth.** `wx.login → code2session` on the server, session bound to `openid`, and **role resolution per
+   request**. One account may hold several roles, and permission is evaluated against the *active* role plus
+   its scope, never the union — see [SECURITY.md](SECURITY.md) §2 and §8.
+3. **Scope enforcement as a server-side primitive**, not per-endpoint code. Every request resolves to the
+   caller's `openid`, then the role, then the scope, then denies by default. The §4.6 derived-input ban was
+   silently inert for the entire PC backend until `614cc8f` because a lookup key did not match; that failure
+   mode is a checker that reports green while enforcing nothing, and it argues for one shared primitive with
+   its own tests rather than a rule repeated 313 times.
+4. **The write controls.** 313 buttons, each needing a verb, path, payload, response, and the state-machine
+   guard it must respect. The guards are the hard part: 40 status columns encode one-way transitions
+   (`d1→d2`, `e1→e2`, `b1→b2`, terminal rejection), and those are exactly where an endpoint can quietly
+   permit something the spec forbids. Work module by module, and lean on the existing `ui=` to `data-ui`
+   binding contract — it already answers which column each control writes.
+5. **The media flow.** Pre-signed upload credentials issued by the API, consumed directly by the client.
+   `wx.uploadFile` posts multipart, so `PostObject` is required alongside `PutObject`. Media must never
+   transit the instance — see [ADR-0014](adr/0014-cloud-vendor-tencent.md).
+
+Two things to settle while writing it, because both are cheaper now than later: the **content-moderation
+gate** is a cross-cutting service every UGC write routes through, so specify it with the envelope rather
+than retrofitting it per endpoint; and gap **G40** should close as the contract lands, since it exists
+precisely to record that actions have no coverage.
+
+### Running in parallel, owned elsewhere
+
+- **Items 1 to 7, compliance, project managers.** The SMS verifications gate everything public. Nothing in
+  the API work waits on them, and they wait on nobody here.
+- **Item 8, artwork, UI designer, due 2026-08-21.** 0 of 12 layout packs released. Longest external lead
+  time outstanding and it blocks the growth book entirely.
+
+### Decisions that need a human, not an engineer
+
+These are listed in section 6 and in [GRILLING.md](GRILLING.md); none should be guessed while writing the
+contract, because each changes what an endpoint must do:
+
+- **G36** — does the assessment report export survive F17? Two defensible readings.
+- **The admin growth-book publish path** and whether ADR-0005 covers admin-authored school content that
+  renders into every child's book.
+- **G11 and G26** — the retention value and the entrusted-processing agreement, both still unsigned.
+- The **term calendar** has no admin surface and no owner, yet three admin operations refuse without it.
 
 ## 11. Suggested skills / 建议技能
 - `/handoff` — refresh this file at the end of each working session.
