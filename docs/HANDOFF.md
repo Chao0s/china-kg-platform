@@ -7,17 +7,19 @@
 > 交接文档（纳入版本管理）。运行 `/handoff` 后将结果写入此处并提交；闸门会在提交未更新本文件时提醒。
 > 请勿写入密钥、凭证或个人信息。
 
-**Last updated:** 2026-08-19 (second pass — sibling-repo fixes landed; the plan is in section 10)
+**Last updated:** 2026-08-19 (third pass — the API contract is drafted, and two platform reviews corrected the identity model and the media pipeline; the plan is in section 10)
 
 ---
 
 ## In one line / 一句话现状
 
-The specification, the database and the infrastructure are done and verified. **There is no application code
-and no API contract.** Designing that contract is the only thing standing between a working database and a
-working platform.
+The specification, the database and the infrastructure are done and verified. **There is still no application
+code**, but the API contract now exists in draft — conventions, authentication, the authorization primitive
+and the media flow, proved against one vertical slice, covering 3 of 41 status columns. Finishing that
+enumeration is the next work, and it is mechanical rather than a decision.
 
-> 中文：规格、数据库与基础设施均已完成并通过验证；但**没有任何应用代码，也没有 API 契约**。设计该契约是数据库与可运行平台之间唯一剩下的环节。
+> 中文：规格、数据库与基础设施均已完成并通过验证；**仍无任何应用代码**，但 API 契约已有草案 —— 约定、认证、
+> 授权原语与媒体流均已收口，并以一条纵切验证，覆盖 41 个状态列中的 3 个。补完枚举是下一步，属机械工作而非决策。
 
 ---
 
@@ -254,23 +256,39 @@ there.
 
 ## 10. The plan from here / 后续计划
 
-Items 9 to 11 are done. **Item 12, the API contract, is the whole of the next session** — everything in
-13 to 22 is blocked behind it, and it is the one remaining item where the constraint is a decision rather
-than the work.
+Items 9 to 12 are done. **The API contract is drafted** and lives at
+`../hualong-backend/docs/API-CONTRACT.md` (v0.1, commit `0dda4dc`), beside the schema it serves, with
+`api/openapi.yaml` as the OpenAPI 3.1 form of its worked slice.
 
-### Next session: design the API contract
+### Next session: finish the enumeration, and answer six questions that are not engineering
 
-Where it should live: `../hualong-backend`, beside the schema it serves (item 11). That repo already holds
-the decision log and the gate harness, and the contract has to move with the schema or the two drift.
+The contract settled the conventions once. What remains is applying them to the other six modules —
+`api/action-coverage.tsv` tracks it honestly at 3 covered, 32 pending, 6 with no action. The method is in
+API-CONTRACT.md §12; **do not re-decide the conventions while enumerating**, because a second convention is
+worse than an incomplete first one.
+
+Two platform reviews on 2026-08-19 changed what some of those endpoints must do, and both are now written
+into the PRD twins, DELIVERY.md, GAPS.md and [ADR-0015](adr/0015-growth-book-rendering-budget.md):
+
+- **The identity model was wrong in the PRD** and is now corrected. There is no in-app role switching:
+  `openid` is unique only within a single Mini Program, so two apps give one person two uncorrelatable
+  `openid` values and the role is decided by which app is opened. Backend decision A2 settled this on
+  2026-07-29; the schema has never had a role-binding table. The cross-app link key is still OPEN — the
+  billed real-time phone verification, or `unionid` via a 开放平台 binding.
+- **Video has no upload transport.** `wx.uploadFile` is a single POST with a 10 MB platform ceiling, no
+  resume and no chunking, while phone video is 20-60 MB. Registered as BLOCKER **G41**.
+
+The original design order below is retained because the later layers are still unwritten.
 
 Design it in this order, because each layer constrains the next:
 
 1. **The envelope, once.** Success and error shapes, status-code conventions, pagination, and the idempotency
    key that `publish_idempotency_rule` already mandates for growth-book publishing. Every later endpoint
    inherits this, so changing it afterwards is expensive.
-2. **Auth.** `wx.login → code2session` on the server, session bound to `openid`, and **role resolution per
-   request**. One account may hold several roles, and permission is evaluated against the *active* role plus
-   its scope, never the union — see [SECURITY.md](SECURITY.md) §2 and §8.
+2. **Auth.** `wx.login → code2session` on the server, session bound to the `openid` **of that one Mini
+   Program**, which resolves to exactly one role. There is no multi-role session and no active-role
+   selection: the app the person opened is the role. `SECURITY.md` §2 still describes the superseded
+   switching model and owes a correction. Permission is evaluated against that role plus its scope.
 3. **Scope enforcement as a server-side primitive**, not per-endpoint code. Every request resolves to the
    caller's `openid`, then the role, then the scope, then denies by default. The §4.6 derived-input ban was
    silently inert for the entire PC backend until `614cc8f` because a lookup key did not match; that failure
@@ -307,6 +325,12 @@ contract, because each changes what an endpoint must do:
   renders into every child's book.
 - **G11 and G26** — the retention value and the entrusted-processing agreement, both still unsigned.
 - The **term calendar** has no admin surface and no owner, yet three admin operations refuse without it.
+- **The cross-app identity key** — billed real-time phone verification, or `unionid` via a 开放平台 binding.
+  This decides what `code2session` hands the authorization primitive, so it cannot wait for the enumeration.
+- **G41, video in v1** — drop it, build the multipart endpoint family, or cap it under 10 MB.
+- **Which classes the pilot covers.** The 体验版 whitelist allows 60 testers per Mini Program while the
+  kindergarten has 500-700 guardians, so the pilot that is now the primary launch deliverable cannot cover
+  the school. Someone must name the classes and collect each tester's WeChat ID. See [DELIVERY.md](DELIVERY.md) §A6.
 
 ## 11. Suggested skills / 建议技能
 - `/handoff` — refresh this file at the end of each working session.

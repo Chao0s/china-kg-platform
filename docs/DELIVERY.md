@@ -37,7 +37,7 @@ Owners are the responsible party; status is as of 2026-08-19; risk is impact on 
 | ICP filing (小程序备案 and the site filing) | 园方 + engineering | **In progress** — site filing opened 2026-08-11, at step 4 of 5 awaiting 工信部短信核验, then 管局审核 at 1–20 working days | **High** — the domain is blocked until it clears | Per-AppID, so two Mini Programs mean two 小程序备案 in addition to the site filing. |
 | WeChat verification (微信认证) | 园方 (subject holder) | Not started — needs the AppIDs | High — prerequisite for category and public release | ¥300 per year, **×2** for two Mini Programs. |
 | Mini Program account registration | 园方 / project managers | Not started | **High** — everything WeChat-side waits on the AppIDs | Two accounts: parent and teacher. |
-| Education 类目 / 资质 (possibly 办学许可证) | 园方 / 教育局 | Open — unconfirmed | High — a wrong category blocks submission | Find out before submission, not at it. |
+| Education 类目 / 资质 | 园方 / 教育局 | **Likely resolved 2026-08-19** — confirm in console | Medium, downgraded from High | Category is 教育服务 - 学历教育（学校）. For a public school the qualification is the education authority's approval document **or the 《事业单位法人证书》**, which the kindergarten already holds per [ADR-0010](adr/0010-legal-subject.md). 《民办学校办学许可证》 is the private-school branch and does not apply. Confirm the live category tree once the AppIDs exist. |
 | WeChat 审核 (public review) | WeChat platform | Not started — waits on a built app | High — external, and **×2** for two Mini Programs, each rejectable | The 体验版 pilot is the fallback. |
 | WeChat `security.*` moderation | WeChat platform | Available — must be integrated | High — a hard, non-bypassable gate | [ADR-0005](adr/0005-mandatory-content-moderation.md). |
 | Growth-book artwork — 12 layout packs | UI designer | **0 of 12 released**; due 2026-08-21 | **High** — the longest lead time outstanding; blocks the growth book entirely | Every `pack.json` is a skeleton with empty `assets` and `layouts`. |
@@ -50,14 +50,26 @@ Owners are the responsible party; status is as of 2026-08-19; risk is impact on 
 | 未成年人数据 retention period | 园方 / legal | **Open — unsigned** (gap G11) | Medium — PIPL art. 17 needs a value, not a proposal | [ADR-0009](adr/0009-minors-data-retention.md). |
 | Entrusted-processing agreement | 园方 / legal + developer | **Open — identified but unsigned** (gap G26) | Medium — the developer processes minors' data as an entrusted party | Signature, not engineering. |
 | 订阅消息 quota and eligibility | WeChat / 园方 | **Not applicable in v1** | None | v1 notifications are in-app only. See [NOTIFICATIONS.md](NOTIFICATIONS.md). |
+| **体验成员 enrolment ×2** | 园方 / project managers | Not started | **High** — caps the pilot at 60 per app | WeChat fixes the quota by certification and publication state; a certified, unpublished Mini Program allows **60**. Each tester is added individually by WeChat ID and must accept. See §A6. |
+| **用户隐私保护指引 ×2** | Project managers | Not started | **High** — undeclared privacy APIs simply do not work | Since 2023-09-15 only declared interfaces can be called. An undeclared `wx.chooseMedia` fails silently, and that is the most-used API in both clients. Per-AppID, so two declarations. |
+| **`消息推送` endpoint ×2** | Engineering | **Blocked on the site filing** | **High** — content moderation cannot complete its loop without it | `mediaCheckAsync` returns its verdict to the Mini Program's `消息推送` URL, configured per AppID with its own Token and EncodingAESKey. WeChat validates the URL at configuration time, so it must be publicly reachable — which the filing currently blocks. |
+| 服务器域名 whitelist ×2 | Engineering | Not started | Medium | Per-category lists with a capped number of modifications per month. Plan the full list once, including the eventual CDN hostname, rather than spending modifications adding domains one at a time. |
+| 手机号快速验证 balance | 园方 | Open | Medium — an empty balance breaks login for everyone | Billed per successful call. The 事业单位 exemption applies only to the 政务民生 category, which is not ours. See the identity-key decision in [PRD.md](PRD.md) §5. |
 
 ## A3. Critical path
 
-The compliance chain remains strictly sequential, but its first link is now closed:
+**Corrected 2026-08-19: the pilot and the public release have different critical paths, and the pilot's is
+much shorter.** An unfiled Mini Program still runs in 开发版 and 体验版 — 小程序备案 gates 上架/发布 only. So
+the two 小程序备案 filings are **not** on the pilot's path and can run in parallel with building.
+
+What the pilot does need is the **site filing for the API domain**, because a 体验版 on a real device enforces
+the 服务器域名 whitelist and that whitelist requires filed domains. That filing is already at step 4 of 5.
 
 ```
-主体 confirmed ✅ → AppIDs registered → 微信认证 ×2 + 类目/资质 + 小程序备案 ×2
-                                     → app built → WeChat 审核 ×2 → public release
+pilot:   主体 ✅ → AppIDs registered → site filing clears → 体验成员 enrolled (≤60 each)
+                                     → app built → 体验版 pilot
+
+public:  the above → 微信认证 ×2 + 类目/资质 + 小程序备案 ×2 → WeChat 审核 ×2 → public release
 ```
 
 Running beside it, and now the binding constraint:
@@ -72,6 +84,24 @@ that does not exist. There is no OpenAPI document, no endpoint table, no verb, p
 pagination convention anywhere across the four repos. What exists is a field-level binding contract of 832
 bindings over 719 columns, which answers *which column an input writes to* and nothing about the wire.
 Gap G40 states it directly: 绑定契约只覆盖字段，不覆盖动作 —— 313 个按钮零覆盖。
+
+## A6. The pilot cannot cover the school
+
+WeChat caps 体验成员 by certification and publication state. On the launch date both Mini Programs will be
+certified but unpublished, which allows **60 体验成员 per AppID**. The kindergarten has roughly 25–45 staff and
+500–700 guardians.
+
+The 体验版 pilot is now the primary deliverable for 2026-09-01 ([ADR-0008](adr/0008-launch-timeline-and-pilot.md)),
+so this is a scoping constraint on the thing being delivered, not a footnote:
+
+- The teacher app can plausibly cover **all staff** within 60.
+- The parent app covers **at most 60 families**, so the pilot must be scoped to a named subset — two classes
+  is the natural unit.
+- Every tester is enrolled individually by WeChat ID and must accept the invitation. Someone has to own that
+  clerical work, and it is not engineering.
+- The two AppIDs give **two independent 60-slot pools**, so teacher and parent whitelists do not compete.
+
+**Needs a decision from 园方:** which classes, and who collects the WeChat IDs.
 
 ## A4. Schedule reality
 

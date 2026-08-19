@@ -94,7 +94,18 @@ There are **exactly two Mini Programs** — teacher and parent — and **one PC 
 - The PC后台 / CMS is **admin-only**; teachers and parents have no CMS access.
 - A teacher belongs to **exactly one class**, carried by a scalar class reference plus an assignment role. The former teacher-to-class join table was deleted; this is a product constraint, not only a schema simplification.
 - The parent client surfaces **only** home-school-community co-education content plus its own notices/tasks; never staff modules.
-- Identity: one WeChat account (one `openid`) may hold multiple roles (a teacher who is also a parent switches role in-app). See [ADR-0003](adr/0003-client-framework.md).
+- **Identity — corrected 2026-08-19.** There is **no in-app role switching**, because `openid` is unique only
+  *within a single* Mini Program. Two Mini Programs give the same person **two different, uncorrelatable
+  `openid` values**. The role is decided by which app the person opens. A teacher who is also a parent has an
+  account in each app, linked by the identity key below, and the two are never merged into one session.
+  Backend decision A2 settled this on 2026-07-29 against WeChat's own documentation; the schema has no
+  role-binding table, and `db_teacher` / `db_parent` are keyed by phone number.
+- **The cross-app identity key is OPEN.** A2 chose the WeChat real-time-verified phone number
+  (`getRealtimePhoneNumber`), never self-entered. That component is **billed per successful call** and draws
+  down a prepaid balance, so an exhausted balance breaks login for everyone. The exemption for 事业单位
+  subjects applies only when the category is 政务民生, which is not ours (§8.1). The alternative is `unionid`,
+  free and stable, which requires binding both AppIDs to one 微信开放平台 account under the same subject.
+  This needs a decision and a superseding ADR; it moves gaps G1 and G20, both BLOCKER.
 
 ## 6. Scope — module specifications (v1: all eight modules)
 
@@ -192,12 +203,27 @@ AC:
 
 ## 7. Cross-cutting requirements
 
-1. **Authentication & identity.** `wx.login → code2session` (implemented on our API) yields `openid`, bound to a roster entry and one or more roles. Phone-number authorization for parents where needed. Onboarding flow: the PRD specs both (roster-import + invite code; and self-register + approval) — director decides ([GRILLING.md](GRILLING.md)).
+1. **Authentication & identity.** `wx.login → code2session` on our API yields an `openid` **scoped to that one Mini Program**, bound to a roster entry for exactly one role. There is no multi-role session and no role switch; see §5. Three things resemble role switching and are not: a teacher versus a partner-school account is one mutually exclusive subject resolved at login; a parent with several children switches *content context* on the device, which is not a session change; and an admin's several permissions are a bit set that all apply at once. Onboarding flow: the PRD specs both (roster-import + invite code; and self-register + approval) — director decides ([GRILLING.md](GRILLING.md)).
+   **Parent and admin sign-in are not implementable yet** — gap G1. `db_parent` and `db_admin` carry no credential column, and the PC console is not a Mini Program so `code2session` does not apply to it. Only teacher and partner-account login exist in the schema today.
 2. **Content moderation (内容安全).** Mandatory gate on every user content item before publication — §8, [ADR-0005](adr/0005-mandatory-content-moderation.md).
    - **While** a UGC item has not passed `security.msgSecCheck` (text) / `security.mediaCheckAsync` (media), **the system shall** keep it `pending` and invisible to non-authors.
    - **If** the machine check fails, **then the system shall** place the item in an admin manual re-review queue (approve/override with reason).
 3. **Notifications.** v1 notifications are **in-app only**; there are no WeChat 订阅消息 sends anywhere in v1. The in-app entry is the notification, not a fallback for one, and it drives the to-do badges. See [NOTIFICATIONS.md](NOTIFICATIONS.md).
-4. **Media pipeline.** Images: native `wx.compressImage` (light, device-safe). Video: minimal client compression, server-side managed transcoding. Files live in **COS object storage**; the relational database holds metadata and keys only. Uploads are resumable and chunked with retries, progress and an optional Wi-Fi-only mode; a `pending → uploaded → moderated → published` status protects against dropped connections, and a lifecycle rule discards incomplete fragments after seven days. **Media never transits the API instance** — clients read and write COS directly using short-lived pre-signed credentials, because the instance uplink is 5 Mbps. See [ADR-0014](adr/0014-cloud-vendor-tencent.md).
+4. **Media pipeline.** Images: native `wx.compressImage` (light, device-safe). Files live in **COS object storage**; the relational database holds metadata and keys only. **Media never transits the API instance** — clients read and write COS directly using short-lived pre-signed credentials, because the instance uplink is 5 Mbps. See [ADR-0014](adr/0014-cloud-vendor-tencent.md).
+   **Corrected 2026-08-19.** Earlier drafts promised uploads that are "resumable and chunked". The default
+   path cannot be: `wx.uploadFile` sends a single `multipart/form-data` POST with a **10 MB platform ceiling**,
+   and it can neither resume nor chunk. That 10 MB is WeChat's limit, not a product choice, so it cannot be
+   raised. Retries are therefore whole-file retries. A Wi-Fi-only mode and a
+   `pending → uploaded → moderated → published` status still apply, and a lifecycle rule discards incomplete
+   fragments after seven days.
+   **Video has no viable transport and is therefore OPEN.** A phone video of 20–60 MB cannot pass through
+   `wx.uploadFile` at all. A resumable path exists — read slices with `FileSystemManager.readFile`, send each
+   to a pre-signed COS `UploadPart` URL, then complete the multipart upload — but it is a second endpoint
+   family that does not exist yet. Until it is built or video is dropped from 在园时光, a teacher recording a
+   birthday video will simply fail. Tracked as a BLOCKER in the backend gap register.
+   **Drafts holding media do not survive the app being killed.** `wx.chooseMedia` returns temporary paths.
+   A draft that must outlive a session has to copy the file into `wx.env.USER_DATA_PATH`, which is bounded
+   local storage and needs its own cleanup.
 5. **Search.** PC后台 search across kindergarten / teacher / class / parent; library filters per module.
 6. **Audit & logging.** Download log (account + time) required; browse log optional; audit decisions retained immutably.
 7. **Internationalization.** Simplified Chinese is the product language; repository docs are bilingual.
@@ -215,7 +241,13 @@ WeChat-side**: two filings, two 微信认证, two review submissions, each rejec
 1. **Content moderation** — `security.msgSecCheck` / `security.mediaCheckAsync` on all UGC (text/image/video/audio/nickname/avatar/comment); pending-until-pass; manual re-review for false positives.
 2. **小程序备案 (ICP filing)** — mandatory before public go-live (since 2023-09-01); 1–20 working days for 管局审核. Per-AppID, so **×2**. The separate site filing for the API domain is in progress.
 3. **微信认证 (WeChat verification)** — subject verification, ¥300 per year, **×2**.
-4. **Education 类目 / 资质** — category may require 办学许可证; match to credentials before submission.
+4. **Education 类目 / 资质** — **likely resolved 2026-08-19, pending console confirmation.** For a
+   kindergarten the category is 教育服务 - 学历教育（学校）. For a **public** school the qualification is the
+   education authority's approval document **or the 《事业单位法人证书》** — 《民办学校办学许可证》 is the
+   private-school branch and does not apply. [ADR-0010](adr/0010-legal-subject.md) already establishes the
+   subject as a 事业单位, so the kindergarten holds the exact document required. Two things still to confirm
+   once the AppIDs exist: that 学前教育 sits under that node in the live category tree rather than an adjacent
+   one, and that the certificate is accepted for it. The same category and document cover both AppIDs.
 5. **Minors' data (未成年人数据)** — explicit guardian consent, privacy popup, data minimization, strict access, defined retention ([ADR-0009](adr/0009-minors-data-retention.md)). PIPL + minors' online-protection regulation.
 
 ### 8.2 Compliance traceability
@@ -237,8 +269,19 @@ See [docs/research/wechat-miniprogram.md](research/wechat-miniprogram.md) for so
 - **Content moderation = WeChat `security.*`** (mandatory), optionally plus a second commercial layer. [ADR-0005](adr/0005-mandatory-content-moderation.md).
 - **Render = Skyline-where-it-helps / WebView default; animation minimal**; web DOM animation libraries (GSAP, Framer Motion) are MP-incompatible and restricted to the web admin. [ADR-0007](adr/0007-render-engine-and-animation.md).
 - **Harness = Node hooks + Python judges.** [ADR-0006](adr/0006-harness-language.md).
-- **五维雷达图** = ec-canvas / ECharts. **成长册** = composed and read in-app; there is no export or server-side render.
-- **The API contract does not exist yet.** No OpenAPI document, no endpoint table, no verb, path, payload, status-code or pagination convention exists in any repo. What exists is a field-level binding contract of 832 bindings over 719 columns, which answers which column an input writes to and nothing about the wire. Designing this contract is the current critical path and is a required deliverable.
+- **五维雷达图 — corrected 2026-08-19: drawn directly, not with a charting library.** Earlier drafts specified
+  ec-canvas / ECharts. The backend had already decided the opposite (W12: 零文件、零 base64、零字段, computed
+  live and drawn by the same code on both surfaces), and the backend is right for a reason worth recording: a
+  five-axis polygon is on the order of a hundred lines of Canvas 2D, while even a trimmed ECharts build is a
+  large fraction of a **2 MB** main package. The radar also appears inside the growth book, so a library would
+  mean maintaining two renderers for one chart and breaking the one-composer rule in §6.6.
+- **成长册** = composed and read in-app; there is no export and no server-side render. Rendering happens at
+  **device screen resolution**, not print resolution — see the rendering-budget ADR [ADR-0015](adr/0015-growth-book-rendering-budget.md).
+- **The API contract now exists in draft.** `hualong-backend/docs/API-CONTRACT.md` (v0.1, 2026-08-19) settles
+  the conventions — envelope, error shape, status codes, cursor pagination, idempotency, concurrency — plus
+  authentication, the authorization primitive, the media flow, and one worked vertical slice. It is a
+  foundation, not full coverage: `hualong-backend/api/action-coverage.tsv` tracks 41 status columns of which
+  3 are covered and 32 pending. Enumerating the remaining modules is mechanical and is the next work.
 
 ## 10. Architecture and data model
 
@@ -273,7 +316,18 @@ hard.
 - **E2E:** the docs site, the future H5/web admin, and the knowledge-graph dashboard are smoke-tested with chrome-devtools (`tests/e2e/`) — no console errors, links resolve, accessibility passes, CJK renders.
 
 ## 12. Non-functional requirements
-- **Performance & size:** main package ≤ 2MB, total ≤ ~30MB; sub-packages; media in COS, never in the bundle; lazy-load heavy screens.
+- **Performance & size (verified platform limits).** Main package **≤ 2 MB**; **each** subpackage ≤ 2 MB;
+  total **≤ 30 MB** — but **≤ 20 MB if the AppID is built or operated by a 第三方服务商**, so confirm who holds
+  the account. Total size is not the binding constraint for 74 screens; **the 2 MB main package is**, and the
+  growth-book editor plus any charting library is what breaches it. tabBar pages must live in the main
+  package. `preloadRule` defaults to `wifi`, which means a preload silently never happens for guardians on
+  rural 4G — set `network: "all"` on paths that must be warm. The 12 growth-book layout packs ship inside the
+  package rather than the database, so they are a growing main-or-subpackage size line item that must be
+  budgeted. Media stays in COS, never in the bundle; heavy screens lazy-load.
+- **Memory budget (new).** Canvas 2D fails above **4096 px on either axis**, and an A4 page rendered at print
+  resolution on a 3× device exceeds that. Render at screen resolution, cap the device pixel ratio, reuse a
+  small pool of canvas nodes rather than mounting one per page, and serve each image widget a derivative
+  sized to its actual pixel box rather than the stored 2000 px original. Details and arithmetic in [ADR-0015](adr/0015-growth-book-rendering-budget.md).
 - **Weak-network resilience:** resumable uploads, retries, offline-tolerant drafts (China rural networks, low-end devices).
 - **Accessibility:** legible CJK sizes for older guardians; touch targets ≥ 44×44; AA contrast; never convey state by color alone.
 - **Privacy/security:** least-privilege access to minors' data; secrets never in the client or repo; HTTPS-only; 备案'd domains.
@@ -295,7 +349,16 @@ a 体验版 (trial) pilot is the Sep 1 fallback if public 审核 slips.
 > date, not the fallback it was designed as.
 
 ## 14. Risks and open questions
-- **The API contract does not exist.** The highest-priority engineering risk. Three clients and 313 write controls have no endpoint definitions behind them, and those definitions land in exactly the places where the one-way state machines live. Nothing client-side can start until it is designed.
+- **The API contract is drafted but not complete.** `hualong-backend/docs/API-CONTRACT.md` v0.1 settles the
+  conventions, authentication, the authorization primitive and the media flow, and proves them against one
+  vertical slice. Coverage is 3 of 41 status columns; the remaining six modules are enumerated mechanically
+  from the existing button tables. The risk has moved from "nothing exists" to "finish the enumeration
+  without inventing a second convention".
+- **The 体验版 pilot is capped at 60 testers per Mini Program.** WeChat fixes 体验成员 quotas by
+  certification and publication state; a certified, unpublished Mini Program allows 60. The kindergarten has
+  roughly 25–45 staff and 500–700 guardians, so the pilot that is now the primary deliverable for the launch
+  date **cannot cover the school**. It must be scoped to a named subset, and someone must collect and enrol
+  each tester's WeChat ID individually. The two AppIDs do at least give two independent 60-slot pools.
 - **Timeline.** The 主体 blocker is cleared, but it stayed open from 2026-06-18 to 2026-08-11 and the compliance chain could not start behind it. With zero application code and 13 days remaining, the public launch will not happen on the fixed date; the pilot carries it.
 - **No artwork.** 0 of 12 growth-book layout packs are released. Longest external lead time outstanding, and it blocks the product's centrepiece.
 - **Minors'-data liability:** mishandling children's media is a legal risk — consent, minimization and retention are designed in ([ADR-0009](adr/0009-minors-data-retention.md)). Two related items are **unsigned**: the guardian-consent and retention value, and the developer's entrusted-processing agreement.
