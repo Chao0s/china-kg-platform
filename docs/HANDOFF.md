@@ -7,7 +7,7 @@
 > 交接文档（纳入版本管理）。运行 `/handoff` 后将结果写入此处并提交；闸门会在提交未更新本文件时提醒。
 > 请勿写入密钥、凭证或个人信息。
 
-**Last updated:** 2026-08-19 (third pass — the API contract is drafted, and two platform reviews corrected the identity model and the media pipeline; the plan is in section 10)
+**Last updated:** 2026-08-20 (fourth pass — the API contract is enumerated across all seven modules, the backend harness has grown from six steps to eight, and the register is reconciled; the plan is in section 10)
 
 ---
 
@@ -15,8 +15,9 @@
 
 The specification, the database and the infrastructure are done and verified. **There is still no application
 code**, but the API contract now exists in draft — conventions, authentication, the authorization primitive
-and the media flow, proved against one vertical slice, covering 3 of 41 status columns. Finishing that
-enumeration is the next work, and it is mechanical rather than a decision.
+and the media flow. All seven modules are now enumerated: **126 actions over 36 tables, 126 OpenAPI
+paths**, with the coverage ledger at 18 unfinished status columns of 41. What remains there is blocked
+on decisions rather than on work.
 
 > 中文：规格、数据库与基础设施均已完成并通过验证；**仍无任何应用代码**，但 API 契约已有草案 —— 约定、认证、
 > 授权原语与媒体流均已收口，并以一条纵切验证，覆盖 41 个状态列中的 3 个。补完枚举是下一步，属机械工作而非决策。
@@ -256,14 +257,33 @@ there.
 
 ## 10. The plan from here / 后续计划
 
-Items 9 to 12 are done. **The API contract is drafted** and lives at
-`../hualong-backend/docs/API-CONTRACT.md` (v0.1, commit `0dda4dc`), beside the schema it serves, with
-`api/openapi.yaml` as the OpenAPI 3.1 form of its worked slice.
+Items 9 to 12 are done. **The API contract is enumerated**, at
+`../hualong-backend/docs/API-CONTRACT.md` (v0.5), beside the schema it serves, with
+`api/openapi.yaml` carrying 126 paths and `docs/API-MODULES.md` holding the per-module record.
+
+Enumeration ran as four modules in parallel — each author writing to `api/fragments/`, one integrator
+merging — and then each author reviewed the integrator's account of their own module. Roughly 1,030
+lines of author text against 160 of the integrator's, and **nothing was rejected in any of the four**:
+the authors were sharper on why a constraint exists because they read the specs, the integrator was
+tighter on which number was wrong because it ran the gates, and the two did not overlap.
+
+**The backend harness grew from six steps to eight** in the process. A `computed` value-source tier
+closed a hole where any column in no tier list fell through to "client may supply, no restriction",
+and an enum-registry comparator took the disagreement between `DATABASE_SPEC` §2 and the schema from
+sixteen columns to zero. Both were admitted as gates only once their own subject matter was clean.
+
+The recurring finding is worth carrying forward, because it is a property of this codebase rather than
+of any one session: **eight separate checks were found reporting green while enforcing nothing** — a
+rule written into a specification but never into code, a regex whose word boundaries were consumed at
+compile time, a guard that checked a reason existed rather than that it was the right reason, a CRLF
+header that made a tool read every row as though a column were absent, and a registry naming a table
+that never existed. Every one was found by a person reading a mechanism; none by a check. `API-MODULES.md`
+appendix A holds the rules that came out of it.
 
 ### Next session: finish the enumeration, and answer six questions that are not engineering
 
 The contract settled the conventions once. What remains is applying them to the other six modules —
-`api/action-coverage.tsv` tracks it honestly at 3 covered, 32 pending, 6 with no action. The method is in
+`api/action-coverage.tsv` tracks it at 18 covered, 14 partial, 4 pending, 5 no-action. The method is in
 API-CONTRACT.md §12; **do not re-decide the conventions while enumerating**, because a second convention is
 worse than an incomplete first one.
 
